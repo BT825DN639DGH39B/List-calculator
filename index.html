@@ -1,0 +1,1934 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>Biswajit Ghosh Calculator Pro (Cloud Edition)</title>
+    
+    <meta name="mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+    <meta name="theme-color" content="#1a237e">
+    <link rel="manifest" href='data:application/manifest+json,{"name":"BG Calc Pro","short_name":"BG Calc","start_url":".","display":"standalone","background_color":"#f0f2f5","theme_color":"#1a237e","icons":[{"src":"https://upload.wikimedia.org/wikipedia/commons/5/53/Google_%22G%22_Logo.svg","sizes":"192x192","type":"image/png"}]}'>
+
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js"></script>
+
+    <style>
+        /* GLOBAL STYLES & STRICT DISCIPLINE */
+        html, body { overscroll-behavior-y: none; box-sizing: border-box; margin: 0; padding: 0; font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; height: 100%; overflow: hidden; background-color: #cfd8dc; font-size: 13px; }
+        *, *:before, *:after { box-sizing: inherit; }
+
+        /* EXACT MOBILE FIT */
+        .app-container { width: 100%; max-width: 500px; margin: 0 auto; background: #fff; box-shadow: 0 4px 15px rgba(0,0,0,0.3); display: flex; flex-direction: column; height: 100dvh; position: relative; }
+        ::-webkit-scrollbar { width: 4px; height: 4px; }
+        ::-webkit-scrollbar-track { background: transparent; }
+        ::-webkit-scrollbar-thumb { background: #90a4ae; border-radius: 4px; }
+
+        /* TOP SECTION */
+        #topSectionWrapper { transition: all 0.3s ease; flex-shrink: 0; z-index: 50; background: #fff; box-shadow: 0 2px 6px rgba(0,0,0,0.15); }
+        .hide-mode #topSectionWrapper { display: none; }
+        
+        .header { display: flex; justify-content: space-between; align-items: center; background: linear-gradient(135deg, #1a237e, #3949ab); color: white; padding: 4px 8px; font-size: 14px; font-weight: bold; text-transform: uppercase; letter-spacing: 0.5px;}
+        
+        /* SYNC INDICATOR STYLES */
+        #syncIndicator { display: flex; align-items: center; gap: 4px; font-size: 10px; padding: 3px 8px; border-radius: 12px; font-weight: bold; transition: all 0.3s ease; text-transform: none; letter-spacing: normal; border: 1px solid rgba(255,255,255,0.2); }
+        .sync-online { background: rgba(46, 125, 50, 0.8); color: #c8e6c9; box-shadow: 0 0 8px rgba(46, 125, 50, 0.5); }
+        .sync-offline { background: rgba(198, 40, 40, 0.8); color: #ffcdd2; }
+        .sync-syncing { background: rgba(239, 108, 0, 0.8); color: #ffe0b2; }
+        @keyframes pulseDot { 0% { opacity: 0.4; transform: scale(0.9); } 50% { opacity: 1; transform: scale(1.1); } 100% { opacity: 0.4; transform: scale(0.9); } }
+        .pulse-dot { width: 6px; height: 6px; background: currentColor; border-radius: 50%; animation: pulseDot 1.5s infinite ease-in-out; }
+
+        .input-group { padding: 4px 6px; background: #e8eaf6;}
+        .input-group input { width: 100%; padding: 5px; border: 1px solid #c5cae9; border-radius: 4px; font-size: 13px; outline: none; font-weight: bold; background: #fff; box-shadow: inset 0 1px 2px rgba(0,0,0,0.05);}
+        .input-group input:focus { border-color: #3949ab; box-shadow: 0 0 4px rgba(57,73,171,0.4);}
+        .top-total { background: linear-gradient(135deg, #ffb300, #ff8f00); padding: 4px 8px; font-weight: bold; font-size: 15px; text-align: center; color: #fff; margin: 0; border-bottom: 2px solid #e65100; text-shadow: 1px 1px 2px rgba(0,0,0,0.2);}
+        
+        .btn-group { display: flex; flex-wrap: wrap; gap: 3px; padding: 4px 6px; background: #f5f5f5; border-bottom: 1px solid #e0e0e0;}
+        .btn { padding: 4px 2px; border: none; border-radius: 4px; color: white; font-weight: bold; cursor: pointer; flex: 1 1 23%; font-size: 11px; text-align: center; box-shadow: 0 2px 3px rgba(0,0,0,0.15); transition: 0.1s;}
+        .btn-new { background-color: #2e7d32; } .btn-save { background-color: #283593; } .btn-cancel { background-color: #546e7a; }
+        .btn-history { background-color: #6a1b9a; } .btn-clear { background-color: #c62828; } .btn-hide-item { background-color: #ef6c00; }
+        .btn-focus { background-color: #424242; } .btn:active { transform: translateY(2px); box-shadow: 0 1px 1px rgba(0,0,0,0.1);}
+
+        /* ADVANCED TOOLS BAR */
+        .tools-bar { display: flex; flex-direction: column; background: #eeeeee; padding: 4px 6px; border-bottom: 2px solid #bdbdbd; gap: 4px; }
+        .tools-row { display: flex; justify-content: space-between; align-items: center; gap: 2px; width: 100%; flex-wrap: wrap;}
+        .zoom-controls { display: flex; align-items: center; gap: 2px; font-weight: bold; font-size: 10px; color: #333;}
+        .zoom-controls input[type="number"] { width: 36px; padding: 2px; border: 1px solid #9e9e9e; border-radius: 3px; font-weight: bold; text-align: center; font-size: 11px;}
+        .btn-tool { background: #3949ab; color: white; border: none; padding: 4px; border-radius: 3px; cursor: pointer; font-weight: bold; font-size: 10px; white-space: nowrap; flex: 1; text-align: center; box-shadow: 0 1px 2px rgba(0,0,0,0.15);}
+        .btn-tool-refresh { background: #00838f; }
+        .btn-tool-pin { background: #d50000; }
+        .btn-tool-unsum { background: #f57c00; color: #fff;}
+        .btn-tool-sum { background: #388e3c; color: #fff;}
+        .btn-tool-clear-sel { background: #d81b60; }
+        .btn-tool-clear-all { background: #b71c1c; }
+        
+        .color-palette { display: flex; gap: 3px; align-items: center;}
+        .color-btn { width: 20px; height: 20px; border-radius: 50%; border: 1px solid #fff; cursor: pointer; box-shadow: 0 2px 4px rgba(0,0,0,0.3); transition: 0.2s;}
+        .color-btn:active { transform: scale(0.9); }
+        .select-tool { padding: 3px; border: 1px solid #9e9e9e; border-radius: 3px; font-weight: bold; font-size: 11px; outline: none; background: #fff;}
+
+        /* FLOATING SHOW BUTTON */
+        #showTopBtn { display: none; position: absolute; top: 5px; right: 5px; background: #d32f2f; color: white; border: 2px solid #fff; padding: 5px 10px; border-radius: 15px; font-weight: bold; z-index: 100; cursor: pointer; box-shadow: 0 4px 8px rgba(0,0,0,0.3); }
+        .hide-mode #showTopBtn { display: block; }
+
+        /* TABLE SECTION - DISCIPLINED UI */
+        .table-container { flex-grow: 1; overflow-y: auto; overflow-x: hidden; -webkit-overflow-scrolling: touch; padding-bottom: 0px; background: #fdfdfd; min-height: 0;}
+        table { width: 100%; border-collapse: collapse; text-align: center; table-layout: fixed; transform-origin: top left; transition: zoom 0.1s ease; }
+        th { background: linear-gradient(180deg, #424242, #212121); color: white; padding: 5px 1px; font-size: 11px; position: sticky; top: 0; z-index: 10; border-bottom: 2px solid #000; text-transform: uppercase;}
+        td { padding: 0px; border-bottom: 1px solid #e0e0e0; border-right: 1px solid #eeeeee;}
+        
+        td input { width: 100%; padding: 4px 1px; border: none; border-radius: 0; font-size: 13px; outline: none; background: transparent; font-weight: bold; color: #212121;}
+        td input:focus { background: #e3f2fd !important; box-shadow: inset 0 0 0 1px #1e88e5; }
+        td input[readonly] { color: #d32f2f; font-size: 13px; background: #fafafa;}
+        input[type="checkbox"].row-cb { transform: scale(1.3); cursor: pointer; margin: 0; accent-color: #1e88e5;}
+
+        /* STRICT COLUMN ALIGNMENT */
+        td input.item-input { text-align: left; padding-left: 6px; }
+        td input.price-input { text-align: right; padding-right: 6px; }
+        td input.unit-input { text-align: center; }
+        td input.total-input { text-align: right; padding-right: 6px; }
+
+        /* Apply contrasting text if background color is dark */
+        #calcBody tr[data-bg-color] td input { color: #000; text-shadow: 0px 0px 2px rgba(255,255,255,0.8); }
+        
+        /* PINNED ROW INDICATOR */
+        #calcBody tr[data-pinned="true"] td.row-sl { color: #d50000; font-size: 12px; }
+
+        .item-col { display: none; }
+        .show-item .item-col { display: table-cell; }
+
+        /* FIXED ROW CONTROLS AT BOTTOM */
+        .row-controls { display: flex; justify-content: space-between; padding: 3px 6px; gap: 6px; background: #e0e0e0; border-top: 2px solid #9e9e9e; flex-shrink: 0; z-index: 40; box-shadow: 0 -2px 5px rgba(0,0,0,0.05); }
+        .row-btn { flex: 1; text-align: center; padding: 4px; cursor: pointer; font-weight: bold; font-size: 12px; border-radius: 3px; color: white; box-shadow: 0 1px 3px rgba(0,0,0,0.2); text-transform: uppercase;}
+        .add-more { background: linear-gradient(to bottom, #1e88e5, #1565c0); } .remove-more { background: linear-gradient(to bottom, #e53935, #c62828); }
+        
+        /* BOTTOM SUMMARY (ALWAYS VISIBLE - GRAND TOTAL) */
+        .bottom-summary { position: sticky; bottom: 0; background: linear-gradient(135deg, #fff8e1, #ffecb3); border-top: 3px solid #ffb300; padding: 6px 6px; display: flex; justify-content: space-between; align-items: center; font-weight: bold; font-size: 14px; flex-shrink: 0; z-index: 100; box-shadow: 0 -3px 8px rgba(0,0,0,0.15);}
+        .summary-box { display: flex; align-items: center; gap: 2px; color: #424242;}
+        .summary-box span { color: #c62828; font-size: 16px; font-weight: 900; text-shadow: 0 1px 1px rgba(0,0,0,0.1); }
+        .summary-box input { width: 70px; padding: 4px; text-align: center; border: 1px solid #ffb300; border-radius: 3px; font-weight: bold; color: #2e7d32; font-size: 14px; box-shadow: inset 0 1px 2px rgba(0,0,0,0.1); outline:none;}
+        .summary-box input:focus { background: #fff; border-color: #ff8f00;}
+
+        /* MODALS */
+        .modal { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.8); justify-content: center; align-items: center; z-index: 100; padding: 5px; backdrop-filter: blur(2px);}
+        .modal-content { background: #f4f6f8; width: 100%; max-width: 500px; height: 98vh; border-radius: 8px; display: flex; flex-direction: column; overflow: hidden; animation: zoomIn 0.25s cubic-bezier(0.2, 0.8, 0.2, 1); box-shadow: 0 10px 40px rgba(0,0,0,0.5); margin: auto;}
+        @keyframes zoomIn { from { transform: scale(0.9); opacity: 0; } to { transform: scale(1); opacity: 1; } }
+        .modal-header { background: linear-gradient(to right, #6a1b9a, #4a148c); color: white; padding: 6px 10px; font-size: 14px; font-weight: bold; display: flex; justify-content: space-between; align-items: center; box-shadow: 0 2px 5px rgba(0,0,0,0.3); z-index: 20; text-transform: uppercase; flex-shrink: 0;}
+        .close-modal { cursor: pointer; font-size: 22px; line-height: 1; padding: 0 8px; background: rgba(255,255,255,0.1); border-radius: 4px; transition: 0.2s;}
+        .close-modal:hover { background: rgba(255,255,255,0.3);}
+        
+        /* HISTORY UI UPDATE */
+        .history-controls { padding: 4px 5px; background: #fff; display: flex; flex-direction: column; gap: 3px; border-bottom: 2px solid #ccc; z-index: 15; box-shadow: 0 2px 4px rgba(0,0,0,0.05); flex-shrink: 0;}
+        .history-dashboard { background: linear-gradient(to right, #e3f2fd, #bbdefb); border-left: 4px solid #1565c0; padding: 3px 6px; display: flex; justify-content: space-between; align-items: center; border-radius: 3px; font-weight: bold; font-size: 12px; color: #0d47a1; box-shadow: inset 0 1px 2px rgba(255,255,255,0.5);}
+        .history-dashboard span.dash-amt { color: #b71c1c; font-size: 14px;}
+        .history-search-row { display: flex; gap: 3px; }
+        .history-search-row input[type="text"] { flex-grow: 1; padding: 4px 5px; border: 1px solid #90a4ae; border-radius: 3px; outline: none; font-size: 12px; font-weight: bold;}
+        .history-search-row input[type="text"]:focus { border-color: #1565c0; }
+        .btn-bulk-action { background: #d32f2f; color: white; border: none; padding: 4px 6px; border-radius: 3px; cursor: pointer; font-weight: bold; display: none; font-size: 11px; box-shadow: 0 1px 2px rgba(0,0,0,0.2);}
+        .btn-bulk-tags { background: #3949ab; color: white; border: none; padding: 4px 6px; border-radius: 3px; cursor: pointer; font-weight: bold; display: none; font-size: 11px; box-shadow: 0 1px 2px rgba(0,0,0,0.2);}
+        
+        /* NEW BULK ACTIONS BAR (History) */
+        #historyBulkActions { display: none; padding: 4px; background: #fff9c4; border: 1px solid #fbc02d; border-radius: 4px; flex-wrap: wrap; gap: 4px; align-items: center; box-shadow: inset 0 1px 3px rgba(0,0,0,0.05); }
+        .bulk-actions-label { font-size: 11px; font-weight: bold; color: #f57f17; width: 100%; text-transform: uppercase;}
+
+        .date-filter-row { display: flex; gap: 3px; align-items: center; background: #eceff1; padding: 3px; border-radius: 3px; border: 1px solid #cfd8dc;}
+        .date-filter-row input[type="date"] { flex: 1; padding: 2px; border: 1px solid #b0bec5; border-radius: 3px; font-size: 11px; font-weight: bold; outline: none;}
+        .btn-date-reset { background: #5d4037; color: white; border: none; padding: 3px 5px; border-radius: 3px; font-weight: bold; font-size: 10px; cursor: pointer;}
+        
+        .history-filters { display: flex; gap: 3px; justify-content: space-between; align-items: center;}
+        .history-filters select, .btn-filter-tags { padding: 4px; border: 1px solid #90a4ae; border-radius: 3px; font-size: 11px; flex: 1; font-weight: bold; outline: none; background: #fff;}
+        .btn-filter-tags { background: #e8eaf6; color: #1a237e; cursor: pointer; text-align: left; border-color: #3f51b5;}
+        .btn-manage-tags { background: #f57c00; color: white; border: none; padding: 4px; border-radius: 3px; font-weight: bold; font-size: 11px; cursor: pointer; flex: 1; box-shadow: 0 1px 2px rgba(0,0,0,0.2);}
+        .btn-trash-toggle { background: #455a64; color: white; border: none; padding: 4px; border-radius: 3px; font-weight: bold; font-size: 11px; cursor: pointer; flex: 1; box-shadow: 0 1px 2px rgba(0,0,0,0.2);}
+        .trash-active { background: #c62828 !important; }
+        
+        .history-list { padding: 4px; overflow-y: auto; -webkit-overflow-scrolling: touch; flex-grow: 1; background: #eceff1;}
+        .select-all-row { background: #e0e0e0; padding: 4px 5px; margin: 0 0 3px 0; border-radius: 4px; font-weight: bold; font-size: 12px; display: flex; align-items: center; gap: 6px; box-shadow: 0 1px 2px rgba(0,0,0,0.1); border-left: 4px solid #607d8b;}
+        
+        .history-card { background: #fff; border-left: 4px solid #3949ab; padding: 5px; margin-bottom: 5px; border-radius: 4px; box-shadow: 0 2px 4px rgba(0,0,0,0.15); position: relative;}
+        .history-card.due-bill { border-left-color: #d32f2f; } 
+        .history-card-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 2px; }
+        .history-card-header h4 { margin:0; color: #212121; display: flex; align-items: center; gap: 4px; font-size: 13px; word-break: break-all;}
+        .history-card-header .sl-badge { background: #1a237e; color: #fff; font-size: 10px; font-weight: bold; padding: 2px 5px; border-radius: 4px; box-shadow: 0 1px 2px rgba(0,0,0,0.2);}
+        .history-card p { margin:0; font-size: 10px; color: #616161; margin-bottom: 3px; font-weight: bold; }
+
+        /* DARK CARD OVERRIDE FOR READABILITY */
+        .history-card.dark-card h4, .history-card.dark-card p, .history-card.dark-card .history-card-header h4 { color: #fff !important; }
+        .history-card.dark-card .card-color-picker span { color: #e0e0e0 !important; }
+        .history-card.dark-card .sl-badge { box-shadow: 0 0 2px #fff; }
+        
+        .tag-badge-container { display: flex; flex-wrap: wrap; gap: 2px; margin-bottom: 3px;}
+        .tag-badge { background: #f3e5f5; color: #6a1b9a; padding: 1px 4px; border-radius: 3px; font-size: 9px; font-weight: bold; border: 1px solid #ce93d8;}
+        
+        /* COMPACT CARD ACTIONS & COLOR PICKER */
+        .card-actions { display: flex; gap: 2px; flex-wrap: wrap; border-top: 1px dashed #e0e0e0; padding-top: 4px;}
+        .card-actions button { padding: 4px; border: none; border-radius: 3px; cursor: pointer; color: white; font-size: 10px; font-weight: bold; flex: 1; box-shadow: 0 1px 2px rgba(0,0,0,0.15);}
+        
+        .btn-edit { background: linear-gradient(to bottom, #4caf50, #2e7d32); } 
+        .btn-view { background: linear-gradient(to bottom, #00acc1, #00838f); } 
+        .btn-pdf { background: linear-gradient(to bottom, #ff9800, #ef6c00); }
+        .btn-wa { background: linear-gradient(to bottom, #4caf50, #1b5e20); } 
+        .btn-tag { background: linear-gradient(to bottom, #5c6bc0, #3949ab); } 
+        .btn-pin { background: linear-gradient(to bottom, #fbc02d, #f57f17); color: #000 !important; }
+        .btn-pin-active { background: linear-gradient(to bottom, #d84315, #bf360c); color: #fff !important; border: 1px solid #fff; }
+        .btn-del { background: linear-gradient(to bottom, #ef5350, #c62828); }
+        .btn-restore { background: linear-gradient(to bottom, #66bb6a, #2e7d32); }
+        
+        .card-color-picker { display: flex; gap: 4px; align-items: center; margin-top: 3px; width: 100%; justify-content: flex-end;}
+        .card-color-picker button { flex: none; width: 16px; height: 16px; border-radius: 50%; border: 1px solid rgba(0,0,0,0.3); box-shadow: 0 1px 3px rgba(0,0,0,0.2); cursor: pointer; padding: 0; transition: 0.1s;}
+        .card-color-picker button:active { transform: scale(0.8); }
+
+        input[type="checkbox"].bill-checkbox { transform: scale(1.3); cursor: pointer; accent-color: #3949ab; margin:0;}
+        
+        mark { background-color: #ffea00; padding: 0 2px; color: #000; font-weight: bold; border-radius: 2px;}
+        mark.tag-highlight { background: linear-gradient(135deg, #ffeb3b, #ffc107); color: #d32f2f; padding: 0 4px; border-radius: 3px; font-weight: 900; box-shadow: 0 1px 2px rgba(0,0,0,0.2); text-shadow: 1px 1px 0px rgba(255,255,255,0.4); display: inline-block; }
+
+        /* TAG MANAGER UI */
+        .tag-manager-container { padding: 6px; overflow-y: auto; flex-grow: 1; background: #f5f5f5; }
+        .tag-add-row { display: flex; gap: 4px; margin-bottom: 6px; }
+        .tag-add-row input { flex: 1; padding: 6px; border: 1px solid #9e9e9e; border-radius: 3px; font-weight: bold; font-size: 12px; outline:none;}
+        .tag-add-row button { background: #2e7d32; color: white; padding: 6px 10px; border: none; border-radius: 3px; font-weight: bold; cursor: pointer; box-shadow: 0 2px 4px rgba(0,0,0,0.2);}
+        .tag-list-item { display: flex; justify-content: space-between; align-items: center; background: #fff; padding: 5px 6px; margin-bottom: 4px; border-radius: 3px; border-left: 4px solid #8e24aa; box-shadow: 0 1px 2px rgba(0,0,0,0.1);}
+        .tag-list-item span { font-weight: bold; font-size: 12px; color: #212121;}
+        .tag-list-item small { background: #e0e0e0; color: #424242; padding: 1px 4px; border-radius: 10px; font-size: 9px; margin-left: 4px;}
+
+        /* ASSIGN TAG MODAL & MULTI FILTER MODAL */
+        .tag-assign-search { padding: 6px; background: #f5f5f5; border-bottom: 1px solid #ddd; display: flex; gap: 4px; flex-shrink: 0;}
+        .tag-assign-search input { flex-grow: 1; padding: 6px; border: 1px solid #ccc; border-radius: 3px; font-weight: bold; font-size: 12px; outline: none;}
+        .tag-assign-search button.btn-clear-search { background: #546e7a; color: white; border: none; border-radius: 3px; padding: 0 10px; font-weight: bold; cursor: pointer;}
+        .tag-assign-list { padding: 6px; overflow-y: auto; flex-grow: 1; background: #fdfdfd; }
+        .tag-assign-item { display: flex; align-items: center; gap: 8px; background: #fff; padding: 6px; margin-bottom: 4px; border-radius: 3px; border: 1px solid #e0e0e0; font-weight: bold; font-size: 12px; cursor: pointer; box-shadow: 0 1px 2px rgba(0,0,0,0.05);}
+        .tag-assign-item input[type="checkbox"] { transform: scale(1.3); accent-color: #3949ab;}
+        .tag-assign-footer { padding: 6px; background: #fff; border-top: 1px solid #ddd; display: flex; gap: 6px; flex-shrink: 0;}
+        .tag-assign-footer button { flex:1; padding: 8px; border:none; border-radius:3px; font-weight:bold; font-size:12px; color:white; cursor:pointer; box-shadow: 0 2px 4px rgba(0,0,0,0.2); text-transform: uppercase;}
+        .btn-save-tags { background: linear-gradient(to bottom, #43a047, #2e7d32); }
+        .btn-remove-tags { background: linear-gradient(to bottom, #e53935, #c62828); }
+        .btn-clear-sel { background: linear-gradient(to bottom, #757575, #424242); }
+
+        /* INVOICE TEMPLATE */
+        #invoice-template { display: none; padding: 0; font-family: 'Arial', sans-serif; background: #fff; color: #000; width: 100%; max-width: 450px; margin: 0 auto; box-sizing: border-box;}
+        .inv-wrapper { padding: 15px; }
+        .inv-header { text-align: center; background: linear-gradient(135deg, #1a237e, #3949ab); color: white; padding: 15px; border-radius: 6px 6px 0 0; margin-bottom: 15px; }
+        .inv-header h1 { font-size: 20px; margin: 0; text-transform: uppercase; letter-spacing: 1px;}
+        .inv-header p { margin: 5px 0 0 0; font-size: 11px; color: #e3f2fd; font-weight: bold;}
+        .inv-details { display: flex; justify-content: space-between; margin-bottom: 12px; font-size: 11px; background: #f1f8e9; padding: 8px; border-radius: 4px; border-left: 4px solid #388e3c; }
+        .inv-table { width: 100%; border-collapse: collapse; margin-bottom: 12px; font-size: 11px; }
+        .inv-table th, .inv-table td { border: 1px solid #bdbdbd; padding: 5px 2px; text-align: center; }
+        .inv-table th { background: #f57c00; color: white; font-weight: bold; font-size: 12px; text-transform: uppercase;}
+        .inv-table td { font-weight: bold; color: #212121; }
+        .inv-summary-container { display: flex; justify-content: flex-end; margin-top: 10px;}
+        .inv-summary { width: 70%; font-size: 12px; background: #e3f2fd; padding: 8px; border: 2px solid #90caf9; border-radius: 4px; }
+        .inv-summary div { display: flex; justify-content: space-between; padding: 4px 0; border-bottom: 1px dotted #90caf9; font-weight: bold; color: #424242;}
+        .inv-summary div.bold { font-size: 14px; color: #c62828; margin-top: 4px; padding-top: 6px; border-top: 2px solid #64b5f6; }
+        .inv-footer { text-align: center; margin-top: 15px; font-size: 10px; color: #616161; border-top: 2px dashed #e0e0e0; padding-top: 10px; font-weight: bold;}
+
+        #previewModal { z-index: 105; }
+        #previewModal .modal-content { background: #cfd8dc; display: flex; flex-direction: column; overflow: hidden; height: 96vh;}
+        .preview-actions { width: 100%; background: #fff; padding: 6px; display: flex; gap: 6px; z-index: 20; box-shadow: 0 4px 6px rgba(0,0,0,0.1); flex-shrink: 0;}
+        .preview-actions button { flex: 1; padding: 8px; border: none; border-radius: 3px; font-weight: bold; color: #fff; cursor: pointer; font-size: 12px; text-transform: uppercase;}
+        .preview-scroll-area { flex-grow: 1; overflow-y: auto; -webkit-overflow-scrolling: touch; display: flex; justify-content: center; padding-bottom: 20px;}
+        #previewContainer { background: #fff; width: 100%; max-width: 450px; margin-top: 10px; box-shadow: 0 8px 20px rgba(0,0,0,0.4); border-radius: 6px; overflow: hidden; height: max-content;}
+    </style>
+</head>
+<body>
+
+<div class="app-container" id="appContainer">
+    <button id="showTopBtn" onclick="window.toggleTopMenu()">👁️ Show Menu</button>
+    
+    <div id="topSectionWrapper">
+        <div class="header">
+            <span>Biswajit Ghosh Pro</span>
+            <span id="syncIndicator" class="sync-syncing"><div class="pulse-dot"></div> Init...</span>
+        </div>
+        <div class="input-group">
+            <input type="text" id="customerName" placeholder="Customer Name" autocomplete="nope" spellcheck="false" data-lpignore="true" oninput="window.quickDraftSaveDebounced()">
+        </div>
+        <div class="top-total">Total: ₹<span id="topTotal">0.00</span></div>
+        <div class="btn-group">
+            <button class="btn btn-new" onclick="window.startNew()">New</button>
+            <button class="btn btn-save" onclick="window.explicitSave()">Save</button>
+            <button class="btn btn-cancel" onclick="window.cancelEdit()">Cancel</button>
+            <button class="btn btn-history" onclick="window.openHistory()">History</button>
+            <button class="btn btn-clear" onclick="window.clearData()">Clear</button>
+            <button class="btn btn-hide-item" id="toggleItemBtn" onclick="window.toggleItems()">Show Item</button>
+            <button class="btn btn-focus" onclick="window.toggleTopMenu()" style="flex: 1 1 48%;">Hide Menu</button>
+        </div>
+        
+        <div class="tools-bar">
+            <div class="tools-row">
+                <button class="btn-tool btn-tool-refresh" onclick="window.shiftRowsUp()">🔄 Shift</button>
+                <button class="btn-tool btn-tool-pin" onclick="window.togglePinSelected()">📌 Pin</button>
+                <button class="btn-tool btn-tool-unsum" onclick="window.unsumSelectedRows()">🚫 Unsum</button>
+                <button class="btn-tool btn-tool-sum" onclick="window.sumSelectedRows()">✅ Sum</button>
+                <button class="btn-tool btn-tool-clear-sel" onclick="window.clearSelectedRows()">✂️ Clr Sel</button>
+                <button class="btn-tool btn-tool-clear-all" onclick="window.clearAllRowsData()">🗑️ Clr All</button>
+            </div>
+            <div class="tools-row">
+                <select class="select-tool" id="rowSortFilter" onchange="window.sortActiveRows()" style="flex:1;">
+                    <option value="default" selected>Sort: Serial No (1,2..)</option>
+                    <option value="recent_top">Sort: Bottom to Top</option>
+                    <option value="modify_new">Sort: Last Edited (Top)</option>
+                    <option value="modify_old">Sort: Oldest Edited (Top)</option>
+                    <option value="highest">Sort: High Amount (Top)</option>
+                    <option value="low_high">Sort: Low Amount (Top)</option>
+                    <option value="color">Sort: Group by Color</option>
+                    <option value="az">Sort: Product A-Z</option>
+                    <option value="summed">Sort: Summed Top</option>
+                    <option value="unsummed">Sort: Unsummed Top</option>
+                </select>
+                <select class="select-tool" id="mainColorPriority" onchange="window.sortActiveRows()" style="flex:1; border-color: #ffb300; background: #fff8e1;">
+                    <option value="">🌈 Any Color</option>
+                    <option value="#e53935">🔴 Red Top</option>
+                    <option value="#43a047">🟢 Green Top</option>
+                    <option value="#1e88e5">🔵 Blue Top</option>
+                    <option value="#fb8c00">🟠 Orange Top</option>
+                    <option value="#8e24aa">🟣 Purple Top</option>
+                </select>
+                <div class="zoom-controls">
+                    Zoom: <input type="number" id="zoomInput" value="100" autocomplete="nope" onchange="window.applyZoom()">
+                    <button class="btn-tool" onclick="window.resetZoom()" style="flex:none; padding:3px 6px;">Rst</button>
+                </div>
+            </div>
+            <div class="tools-row" style="justify-content: center;">
+                <div class="color-palette">
+                    <button class="color-btn" style="background:#e53935" onclick="window.applyColorToSelected('#e53935')"></button>
+                    <button class="color-btn" style="background:#43a047" onclick="window.applyColorToSelected('#43a047')"></button>
+                    <button class="color-btn" style="background:#1e88e5" onclick="window.applyColorToSelected('#1e88e5')"></button>
+                    <button class="color-btn" style="background:#fb8c00" onclick="window.applyColorToSelected('#fb8c00')"></button>
+                    <button class="color-btn" style="background:#8e24aa" onclick="window.applyColorToSelected('#8e24aa')"></button>
+                    <button class="btn-tool" style="background:#546e7a; flex:none; padding:4px;" onclick="window.applyColorToSelected('')">Clear</button>
+                    <button class="btn-tool" style="background:#ffb300; color:#000; flex:none; padding:4px;" onclick="document.getElementById('rowSortFilter').value='color'; window.sortActiveRows()">🎨 Sort Clr</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="table-container" id="tableContainer">
+        <table id="mainTable">
+            <thead>
+                <tr>
+                    <th width="6%"><input type="checkbox" id="selectAllCb" onchange="window.toggleAllRows(this)" style="transform:scale(1.4); margin:0;"></th>
+                    <th width="8%">S.L</th>
+                    <th width="32%" class="item-col">Product</th>
+                    <th width="20%">Price</th>
+                    <th width="14%">Qty</th>
+                    <th width="20%">Total</th>
+                </tr>
+            </thead>
+            <tbody id="calcBody"></tbody>
+        </table>
+    </div>
+
+    <div class="row-controls">
+        <div class="row-btn add-more" onclick="window.addRow()">+ Add Row</div>
+        <div class="row-btn remove-more" onclick="window.removeRow()">- Remove Row</div>
+    </div>
+
+    <div class="bottom-summary">
+        <div class="summary-box">Total: ₹<span id="bottomTotal">0.00</span></div>
+        <div class="summary-box">Paid: <input type="number" id="paidAmount" placeholder="Paid" autocomplete="nope" spellcheck="false" oninput="window.updateTotalsDisplay(); window.quickDraftSaveDebounced();"></div>
+        <div class="summary-box">Bal: ₹<span id="balanceAmount">0.00</span></div>
+    </div>
+</div>
+
+<div class="modal" id="historyModal">
+    <div class="modal-content">
+        <div class="modal-header">
+            <span id="historyTitle">History</span>
+            <span class="close-modal" onclick="window.closeHistory()">&times;</span>
+        </div>
+        <div class="history-controls">
+            <div class="history-dashboard">
+                <span><span id="dashCount">0</span> Bills</span>
+                <span>Sum: ₹<span id="dashTotal" class="dash-amt">0.00</span></span>
+            </div>
+
+            <div class="history-search-row">
+                <input type="text" id="searchInput" placeholder="Search Item, Date, ₹Total, Name..." autocomplete="off" spellcheck="false" oninput="window.renderHistory()">
+                <button class="btn-bulk-tags" id="bulkTagBtn" onclick="window.openBulkAssignTag()">Tags</button>
+                <button class="btn-bulk-action" id="bulkActionBtn" onclick="window.executeBulkAction()">Del</button>
+            </div>
+
+            <div id="historyBulkActions">
+                <div class="bulk-actions-label">Bulk Actions (<span id="bulkCount">0</span> selected)</div>
+                <button class="btn-tool" style="background:#fbc02d; color:#000;" onclick="window.bulkPin(true)">📌 Pin</button>
+                <button class="btn-tool" style="background:#9e9e9e;" onclick="window.bulkPin(false)">📌 Unpin</button>
+                <div class="color-palette" style="margin-left:auto; border-left: 1px solid #ccc; padding-left: 4px;">
+                    <button class="color-btn" style="background:#b71c1c" onclick="window.bulkColor('#b71c1c')"></button>
+                    <button class="color-btn" style="background:#1b5e20" onclick="window.bulkColor('#1b5e20')"></button>
+                    <button class="color-btn" style="background:#0d47a1" onclick="window.bulkColor('#0d47a1')"></button>
+                    <button class="color-btn" style="background:#e65100" onclick="window.bulkColor('#e65100')"></button>
+                    <button class="color-btn" style="background:#4a148c" onclick="window.bulkColor('#4a148c')"></button>
+                    <button class="btn-tool" style="background:#546e7a;" onclick="window.bulkColor('')">Reset Clr</button>
+                </div>
+            </div>
+            
+            <div class="history-filters">
+                <select id="sortFilter" onchange="window.renderHistory()">
+                    <option value="modify_new" selected>Sort: Modify New</option>
+                    <option value="recent_delete">Sort: Recently Deleted</option>
+                    <option value="amount_desc">Sort: Highest Amount</option>
+                    <option value="default">Sort: Default</option>
+                    <option value="az">Sort: A to Z</option>
+                </select>
+                <select id="cardColorFilter" onchange="window.renderHistory()" style="background:#fff3e0; color:#e65100; border-color:#ffb300;">
+                    <option value="">🌈 Color Priority</option>
+                    <option value="#ffebee">🔴 Light Red Top</option>
+                    <option value="#b71c1c">🔴 Dark Red Top</option>
+                    <option value="#e8f5e9">🟢 Light Green Top</option>
+                    <option value="#1b5e20">🟢 Dark Green Top</option>
+                    <option value="#e3f2fd">🔵 Light Blue Top</option>
+                    <option value="#0d47a1">🔵 Dark Blue Top</option>
+                    <option value="#fff3e0">🟠 Light Orange Top</option>
+                    <option value="#e65100">🟠 Dark Orange Top</option>
+                    <option value="#f3e5f5">🟣 Light Purple Top</option>
+                    <option value="#4a148c">🟣 Dark Purple Top</option>
+                </select>
+            </div>
+
+            <div class="date-filter-row">
+                <span>From:</span><input type="date" id="dateFrom" onchange="window.renderHistory()">
+                <span>To:</span><input type="date" id="dateTo" onchange="window.renderHistory()">
+                <button class="btn-date-reset" onclick="window.resetDateFilter()">Rst</button>
+            </div>
+            
+            <div class="history-filters">
+                <button id="btnMultiTagFilter" class="btn-filter-tags" onclick="window.openMultiTagFilterModal()">🏷️ Filter Tags (All)</button>
+                <button class="btn-manage-tags" onclick="window.openTagManager()">🏷️ Manage Tags</button>
+                <button class="btn-trash-toggle" id="trashToggleBtn" onclick="window.toggleTrashView()">🗑️ Recycle Bin</button>
+            </div>
+        </div>
+        <div class="history-list">
+            <div class="select-all-row">
+                <input type="checkbox" id="selectAllHistoryCb" onchange="window.toggleAllHistory(this)" style="transform:scale(1.3); margin:0;"> 
+                <label for="selectAllHistoryCb" style="cursor:pointer; width:100%;">Select All Bills</label>
+            </div>
+            <div id="historyList"></div>
+        </div>
+    </div>
+</div>
+
+<div class="modal" id="multiTagFilterModal" style="z-index: 102;">
+    <div class="modal-content" style="height: 70vh;">
+        <div class="modal-header" style="background:#1565c0;">
+            <span>Filter by Tags (Multi-Select)</span>
+            <span class="close-modal" onclick="window.closeMultiTagFilterModal()">&times;</span>
+        </div>
+        <div class="tag-assign-search">
+            <input type="text" id="filterTagSearchInput" placeholder="Search & Select Tags..." autocomplete="off" oninput="window.renderMultiTagFilterList()">
+            <button class="btn-clear-search" onclick="document.getElementById('filterTagSearchInput').value=''; window.renderMultiTagFilterList();">Clear Search</button>
+        </div>
+        <div class="tag-assign-list" id="multiTagFilterList"></div>
+        <div class="tag-assign-footer">
+            <button class="btn-clear-sel" onclick="window.clearTempMultiTagFilters()">Unselect All</button>
+            <button class="btn-save-tags" onclick="window.applyMultiTagFilters()">Apply Filter</button>
+        </div>
+    </div>
+</div>
+
+<div class="modal" id="tagManagerModal" style="z-index: 102;">
+    <div class="modal-content" style="height: 80vh;">
+        <div class="modal-header" style="background:#ef6c00;">
+            <span id="tagManagerTitle">Manage Tags</span>
+            <span class="close-modal" onclick="window.closeTagManager()">&times;</span>
+        </div>
+        <div class="history-controls">
+            <div class="history-search-row">
+                <input type="text" id="tagSearchInput" placeholder="Search Tags..." autocomplete="off" oninput="window.renderTagManager()">
+            </div>
+            <div class="history-filters">
+                <select id="tagSortSelect" onchange="window.renderTagManager()">
+                    <option value="count">Sort: Highest Bills</option>
+                    <option value="az">Sort: A to Z</option>
+                    <option value="new">Sort: Newly Created</option>
+                    <option value="default">Sort: Default</option>
+                </select>
+                <button class="btn-bulk-action" id="bulkTagDelBtn" onclick="window.deleteSelectedTags()" style="display:none;">Del Tags</button>
+            </div>
+        </div>
+        <div class="tag-manager-container">
+            <div class="tag-add-row">
+                <input type="text" id="newTagName" placeholder="Enter New Tag Name" autocomplete="nope">
+                <button onclick="window.createNewTag()">Add Tag</button>
+            </div>
+            <div id="tagListContainer"></div>
+        </div>
+    </div>
+</div>
+
+<div class="modal" id="assignTagModal" style="z-index: 102;">
+    <div class="modal-content" style="height: 75vh;">
+        <div class="modal-header" style="background:#4a148c;">
+            <span id="assignTagTitle">Assign Tags</span>
+            <span class="close-modal" onclick="window.closeAssignTag()">&times;</span>
+        </div>
+        <div class="tag-assign-search">
+            <input type="text" id="assignTagSearchInput" placeholder="Search & Select Tags..." autocomplete="off" oninput="window.renderAssignTagList()">
+            <button class="btn-clear-search" onclick="document.getElementById('assignTagSearchInput').value=''; window.renderAssignTagList();">Clear Search</button>
+        </div>
+        <div class="tag-assign-list" id="assignTagList"></div>
+        <div class="tag-assign-footer" id="assignTagFooter"></div>
+    </div>
+</div>
+
+<div class="modal" id="previewModal">
+    <div class="modal-content">
+        <div class="preview-actions">
+            <button style="background: #e53935;" onclick="window.closePreview()">Close</button>
+            <button style="background: #fb8c00;" id="btnPreviewPdf">PDF</button>
+            <button style="background: #43a047;" id="btnPreviewWa">WA Send</button>
+        </div>
+        <div class="preview-scroll-area">
+            <div id="previewContainer"></div>
+        </div>
+    </div>
+</div>
+
+<div id="invoice-template">
+    <div class="inv-wrapper">
+        <div class="inv-header">
+            <h1 id="inv-top-name">Biswajit Ghosh</h1>
+            <p>Official Invoice / Bill</p>
+        </div>
+        <div class="inv-details">
+            <div><strong>By:</strong> Biswajit Ghosh</div>
+            <div style="text-align: right;">
+                <strong>Date:</strong> <span id="inv-date"></span><br>
+                <strong>Bill No:</strong> <span id="inv-id"></span>
+            </div>
+        </div>
+        <table class="inv-table">
+            <thead>
+                <tr>
+                    <th width="10%">S.L</th>
+                    <th width="35%">Item Description</th>
+                    <th width="15%">Qty</th>
+                    <th width="20%">Price</th>
+                    <th width="20%">Total</th>
+                </tr>
+            </thead>
+            <tbody id="inv-body"></tbody>
+        </table>
+        <div class="inv-summary-container">
+            <div class="inv-summary">
+                <div><span>Sub Total:</span> <strong id="inv-total"></strong></div>
+                <div><span>Amount Paid:</span> <strong id="inv-paid"></strong></div>
+                <div class="bold"><span>Balance Due:</span> <strong id="inv-balance"></strong></div>
+            </div>
+        </div>
+        <div class="inv-footer">
+            <p>Thank you for your business! Have a great day.</p>
+        </div>
+    </div>
+</div>
+
+<script type="module">
+    // ==========================================
+    // OFFLINE-FIRST FIREBASE CLOUD SYNC ADAPTER
+    // ==========================================
+    import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-app.js";
+    import { getFirestore, initializeFirestore, persistentLocalCache, doc, setDoc, onSnapshot } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore.js";
+
+    const firebaseConfig = {
+      apiKey: "AIzaSyAWApL4AOzheq7LQKmu1QzhoqK6cRfYCok",
+      authDomain: "list-calculator-1.firebaseapp.com",
+      projectId: "list-calculator-1",
+      storageBucket: "list-calculator-1.firebasestorage.app",
+      messagingSenderId: "168651477945",
+      appId: "1:168651477945:web:1cd3c5d07b51604cd8dc68"
+    };
+
+    const app = initializeApp(firebaseConfig);
+    const db = initializeFirestore(app, {
+      localCache: persistentLocalCache()
+    });
+
+    window.syncTimeout = null;
+    
+    window.updateSyncUI = function(status) {
+        const el = document.getElementById('syncIndicator');
+        if(!el) return;
+        el.className = '';
+        if(status === 'online') {
+            el.innerHTML = '☁️ Synced';
+            el.classList.add('sync-online');
+        } else if(status === 'offline') {
+            el.innerHTML = '📵 Saved Offline';
+            el.classList.add('sync-offline');
+        } else if(status === 'syncing') {
+            el.innerHTML = '<div class="pulse-dot"></div> Syncing...';
+            el.classList.add('sync-syncing');
+        }
+    };
+
+    window.addEventListener('online', () => window.triggerCloudSync());
+    window.addEventListener('offline', () => window.updateSyncUI('offline'));
+
+    window.triggerCloudSync = function() {
+        if (!navigator.onLine) {
+            window.updateSyncUI('offline');
+            return;
+        }
+        clearTimeout(window.syncTimeout);
+        window.updateSyncUI('syncing');
+        
+        window.syncTimeout = setTimeout(async () => {
+            try {
+                const payload = {
+                    timestamp: Date.now(),
+                    bills: JSON.parse(localStorage.getItem('bg_bills_v18') || '[]'),
+                    trash: JSON.parse(localStorage.getItem('bg_trash_v18') || '[]'),
+                    tags: JSON.parse(localStorage.getItem('bg_tags_v18') || '[]'),
+                    draft: JSON.parse(localStorage.getItem('bg_draft_v18') || 'null')
+                };
+                
+                await setDoc(doc(db, "app_sync", "device_main"), payload);
+                window.updateSyncUI('online');
+            } catch (err) {
+                console.error("Cloud Sync Error:", err);
+                window.updateSyncUI('offline');
+            }
+        }, 1500); 
+    };
+
+    let isFirstCloudLoad = true;
+    onSnapshot(doc(db, "app_sync", "device_main"), (docSnap) => {
+        if (docSnap.exists()) {
+            const remoteData = docSnap.data();
+            const localTs = parseInt(localStorage.getItem('bg_cloud_ts') || '0');
+            
+            if (remoteData.timestamp > localTs) {
+                originalSetItem.call(localStorage, 'bg_bills_v18', JSON.stringify(remoteData.bills));
+                originalSetItem.call(localStorage, 'bg_trash_v18', JSON.stringify(remoteData.trash));
+                originalSetItem.call(localStorage, 'bg_tags_v18', JSON.stringify(remoteData.tags));
+                originalSetItem.call(localStorage, 'bg_draft_v18', JSON.stringify(remoteData.draft));
+                originalSetItem.call(localStorage, 'bg_cloud_ts', remoteData.timestamp.toString());
+                
+                if (!isFirstCloudLoad) {
+                    if (document.getElementById('historyModal').style.display === 'flex') window.renderHistory();
+                    if (document.getElementById('tagManagerModal').style.display === 'flex') window.renderTagManager();
+                }
+            }
+        }
+        isFirstCloudLoad = false;
+        if (navigator.onLine) window.updateSyncUI('online');
+        else window.updateSyncUI('offline');
+    });
+
+    const originalSetItem = localStorage.setItem;
+    localStorage.setItem = function(key, value) {
+        originalSetItem.apply(this, arguments); 
+        if (['bg_bills_v18', 'bg_trash_v18', 'bg_tags_v18', 'bg_draft_v18'].includes(key)) {
+            originalSetItem.call(this, 'bg_cloud_ts', Date.now().toString());
+            window.triggerCloudSync();
+        }
+    };
+</script>
+
+<script>
+    // ==========================================
+    // CORE APP LOGIC
+    // ==========================================
+    let rowCount = 0;
+    let isItemVisible = false;
+    let activeBillId = null; 
+    let isTrashView = false;
+    let currentRawTotal = 0;
+    let saveTimeout;
+    
+    let targetBillForTag = null; 
+    let bulkTargetIds = []; 
+    let isBulkTagMode = false;
+    
+    let activeTagFilters = []; 
+    let tempFilterTags = new Set(); 
+    let tempAssignTags = new Set(); 
+
+    document.addEventListener("DOMContentLoaded", () => { initAppUI(); });
+
+    window.createAdvancedHighlight = function(query) {
+        return function(text) {
+            if (!query) return text;
+            const terms = query.trim().split(/\s+/).filter(Boolean);
+            if (terms.length === 0) return text;
+            let result = String(text);
+            terms.forEach(term => {
+                const safeTerm = term.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+                const regex = new RegExp(`(${safeTerm})`, 'gi');
+                result = result.replace(regex, '<mark class="tag-highlight">$1</mark>');
+            });
+            return result;
+        };
+    };
+
+    function formatMoney(num) {
+        let number = parseFloat(num) || 0;
+        return number.toLocaleString('en-IN', {minimumFractionDigits: 2, maximumFractionDigits: 2});
+    }
+
+    window.applyZoom = function() {
+        let zoomVal = parseFloat(document.getElementById('zoomInput').value) || 100;
+        let scale = zoomVal / 100;
+        document.getElementById('mainTable').style.zoom = scale; 
+    }
+
+    window.resetZoom = function() { document.getElementById('zoomInput').value = 100; window.applyZoom(); }
+
+    window.shiftRowsUp = function() { window.sortActiveRows(); }
+
+    function generateUniqueId() {
+        let id;
+        let bills = JSON.parse(localStorage.getItem('bg_bills_v18')) || [];
+        let trash = JSON.parse(localStorage.getItem('bg_trash_v18')) || [];
+        let allIds = new Set([...bills.map(b => b.id), ...trash.map(b => b.id)]);
+        do { id = Math.floor(100000 + Math.random() * 900000); } while (allIds.has(id));
+        return id;
+    }
+
+    function initAppUI() {
+        const draft = JSON.parse(localStorage.getItem('bg_draft_v18'));
+        if (draft && draft.id && draft.id.toString().length === 6) loadDraft(draft);
+        else { activeBillId = generateUniqueId(); initEmptyRows(); }
+    }
+
+    document.addEventListener("visibilitychange", () => {
+        if (document.visibilityState === 'hidden') silentAutoSaveToHistory();
+    });
+
+    window.toggleTopMenu = function() { document.getElementById('appContainer').classList.toggle('hide-mode'); }
+
+    function initEmptyRows() {
+        document.getElementById('calcBody').innerHTML = '';
+        rowCount = 0;
+        for (let i = 0; i < 200; i++) window.addRow();
+    }
+
+    window.markRowEdited = function(elem) {
+        let tr = elem.closest('tr');
+        tr.setAttribute('data-timestamp', Date.now());
+        window.quickDraftSaveDebounced();
+    }
+
+    window.addRow = function(data = {}) {
+        rowCount++;
+        const tbody = document.getElementById('calcBody');
+        const tr = document.createElement('tr');
+        tr.id = `row_tr_${rowCount}`;
+        let totalDisplay = data.total ? formatMoney(data.total) : '';
+        let bgColor = data.color || '';
+        let rowStamp = data.timestamp || Date.now();
+        
+        if(bgColor) {
+            tr.setAttribute('data-bg-color', bgColor);
+            tr.style.backgroundColor = bgColor;
+        }
+        if(data.unsummed) tr.setAttribute('data-unsummed', 'true');
+        if(data.pinned) tr.setAttribute('data-pinned', 'true');
+        tr.setAttribute('data-timestamp', rowStamp);
+
+        tr.innerHTML = `
+            <td><input type="checkbox" class="row-cb" ${data.checked ? 'checked' : ''} onchange="window.quickDraftSaveDebounced()"></td>
+            <td class="row-sl" style="font-weight:bold; font-size:11px;">${data.pinned ? '📌 ' : ''}${rowCount}</td>
+            <td class="item-col"><input type="text" class="item-input" autocomplete="nope" spellcheck="false" data-lpignore="true" value="${data.item || ''}" oninput="window.markRowEdited(this)"></td>
+            <td><input type="number" inputmode="decimal" class="price-input" autocomplete="nope" spellcheck="false" data-lpignore="true" value="${data.price || ''}" oninput="window.calculateRow(this)"></td>
+            <td><input type="number" inputmode="decimal" class="unit-input" autocomplete="nope" spellcheck="false" data-lpignore="true" value="${data.unit || ''}" oninput="window.calculateRow(this)"></td>
+            <td><input type="text" class="total-input" value="${totalDisplay}" data-raw="${data.total || ''}" readonly></td>
+        `;
+        tbody.appendChild(tr);
+    }
+
+    window.removeRow = function() {
+        if (rowCount > 1) {
+            const tbody = document.getElementById('calcBody');
+            tbody.removeChild(tbody.lastChild);
+            rowCount--;
+            fullRecalculate();
+            reassignSerialNumbers();
+        }
+    }
+    
+    function reassignSerialNumbers() {
+        document.querySelectorAll('#calcBody tr').forEach((tr, index) => {
+            let isPinned = tr.getAttribute('data-pinned') === 'true';
+            tr.querySelector('.row-sl').innerHTML = (isPinned ? '📌 ' : '') + (index + 1);
+        });
+    }
+
+    window.toggleAllRows = function(elem) {
+        let isChecked = elem.checked;
+        document.querySelectorAll('.row-cb').forEach(cb => cb.checked = isChecked);
+        window.quickDraftSaveDebounced();
+    }
+
+    window.togglePinSelected = function() {
+        let changed = false;
+        document.querySelectorAll('#calcBody tr').forEach(tr => {
+            let cb = tr.querySelector('.row-cb');
+            if (cb && cb.checked) {
+                let isPinned = tr.getAttribute('data-pinned') === 'true';
+                if (isPinned) tr.removeAttribute('data-pinned');
+                else tr.setAttribute('data-pinned', 'true');
+                cb.checked = false;
+                changed = true;
+            }
+        });
+        if (changed) {
+            document.getElementById('selectAllCb').checked = false;
+            reassignSerialNumbers();
+            window.quickDraftSaveDebounced();
+        }
+    }
+
+    window.unsumSelectedRows = function() {
+        let changed = false;
+        document.querySelectorAll('#calcBody tr').forEach(tr => {
+            let cb = tr.querySelector('.row-cb');
+            if(cb && cb.checked) {
+                let isBlank = !tr.querySelector('.item-input').value.trim() && 
+                              !tr.querySelector('.unit-input').value.trim() && 
+                              !tr.querySelector('.price-input').value.trim();
+                
+                if (!isBlank) {
+                    tr.setAttribute('data-unsummed', 'true'); 
+                    let tInput = tr.querySelector('.total-input');
+                    tInput.value = '';
+                    tInput.setAttribute('data-raw', '');
+                    changed = true;
+                }
+                cb.checked = false; 
+            }
+        });
+        if(changed) {
+            recalcTotalFromDOM();
+            window.quickDraftSaveDebounced();
+        }
+        document.getElementById('selectAllCb').checked = false;
+    }
+
+    window.sumSelectedRows = function() {
+        let changed = false;
+        document.querySelectorAll('#calcBody tr').forEach(tr => {
+            let cb = tr.querySelector('.row-cb');
+            if(cb && cb.checked) {
+                tr.removeAttribute('data-unsummed'); 
+                window.calculateRow(tr.querySelector('.unit-input'), true); 
+                cb.checked = false; 
+                changed = true;
+            }
+        });
+        if(changed) {
+            document.getElementById('selectAllCb').checked = false;
+            recalcTotalFromDOM();
+            window.quickDraftSaveDebounced();
+        }
+    }
+
+    window.applyColorToSelected = function(colorStr) {
+        document.querySelectorAll('#calcBody tr').forEach(tr => {
+            let cb = tr.querySelector('.row-cb');
+            if(cb && cb.checked) {
+                if(colorStr === '') {
+                    tr.removeAttribute('data-bg-color');
+                    tr.style.backgroundColor = '';
+                } else {
+                    tr.setAttribute('data-bg-color', colorStr);
+                    tr.style.backgroundColor = colorStr;
+                }
+                cb.checked = false; 
+            }
+        });
+        document.getElementById('selectAllCb').checked = false; 
+        window.quickDraftSaveDebounced();
+    }
+
+    window.clearSelectedRows = function() {
+        let changed = false;
+        document.querySelectorAll('#calcBody tr').forEach(tr => {
+            let cb = tr.querySelector('.row-cb');
+            if(cb && cb.checked) {
+                tr.querySelector('.item-input').value = '';
+                tr.querySelector('.unit-input').value = '';
+                tr.querySelector('.price-input').value = '';
+                let tInput = tr.querySelector('.total-input');
+                tInput.value = '';
+                tInput.setAttribute('data-raw', '');
+                tr.removeAttribute('data-unsummed');
+                tr.removeAttribute('data-pinned'); 
+                tr.removeAttribute('data-bg-color');
+                tr.removeAttribute('data-timestamp');
+                tr.style.backgroundColor = '';
+                cb.checked = false; 
+                changed = true;
+            }
+        });
+        if(changed) {
+            document.getElementById('selectAllCb').checked = false;
+            fullRecalculate();
+            window.quickDraftSaveDebounced();
+        }
+    }
+
+    window.clearAllRowsData = function() {
+        if(confirm("Are you sure you want to clear the values from ALL lines?")) {
+            document.querySelectorAll('#calcBody tr').forEach(tr => {
+                tr.querySelector('.item-input').value = '';
+                tr.querySelector('.unit-input').value = '';
+                tr.querySelector('.price-input').value = '';
+                let tInput = tr.querySelector('.total-input');
+                tInput.value = '';
+                tInput.setAttribute('data-raw', '');
+                tr.removeAttribute('data-unsummed');
+                tr.removeAttribute('data-pinned');
+                tr.removeAttribute('data-bg-color');
+                tr.removeAttribute('data-timestamp');
+                tr.style.backgroundColor = '';
+                tr.querySelector('.row-cb').checked = false;
+            });
+            document.getElementById('selectAllCb').checked = false;
+            fullRecalculate();
+            window.quickDraftSaveDebounced();
+        }
+    }
+
+    window.sortActiveRows = function() {
+        const sortType = document.getElementById('rowSortFilter').value;
+        const mainColorPriority = document.getElementById('mainColorPriority').value; // NEW FEATURE
+        
+        let dataRows = [];
+        let topPriorityColor = null;
+        
+        // Old logic: detect top color of checked items
+        document.querySelectorAll('#calcBody tr').forEach(tr => {
+            if(tr.querySelector('.row-cb').checked && tr.getAttribute('data-bg-color')) {
+                topPriorityColor = tr.getAttribute('data-bg-color');
+            }
+        });
+        
+        document.querySelectorAll('#calcBody tr').forEach(tr => {
+            let item = tr.querySelector('.item-input').value;
+            let unit = tr.querySelector('.unit-input').value;
+            let price = tr.querySelector('.price-input').value;
+            let totalRaw = tr.querySelector('.total-input').getAttribute('data-raw');
+            let color = tr.getAttribute('data-bg-color') || '';
+            let checked = tr.querySelector('.row-cb').checked;
+            let unsummed = tr.getAttribute('data-unsummed') === 'true';
+            let pinned = tr.getAttribute('data-pinned') === 'true';
+            let timestamp = parseFloat(tr.getAttribute('data-timestamp')) || 0;
+            
+            if(item.trim() || unit.trim() || price.trim() || color || checked || unsummed || pinned) {
+                dataRows.push({
+                    item: item, unit: unit, price: price, 
+                    total: totalRaw, totalNum: parseFloat(totalRaw) || 0,
+                    color: color, checked: checked, unsummed: unsummed, pinned: pinned, timestamp: timestamp
+                });
+            }
+        });
+
+        if(sortType === 'recent_top') dataRows.reverse(); 
+
+        dataRows.sort((a, b) => {
+            // Absolute pinning first
+            if (a.pinned && !b.pinned) return -1;
+            if (!a.pinned && b.pinned) return 1;
+
+            // NEW: Main Color Priority Override
+            if (mainColorPriority) {
+                let aMatch = (a.color === mainColorPriority) ? 1 : 0;
+                let bMatch = (b.color === mainColorPriority) ? 1 : 0;
+                if (aMatch !== bMatch) return bMatch - aMatch;
+            }
+
+            if(sortType === 'color') {
+                if(topPriorityColor) {
+                    if (a.color === topPriorityColor && b.color !== topPriorityColor) return -1;
+                    if (a.color !== topPriorityColor && b.color === topPriorityColor) return 1;
+                }
+                return (a.color ? a.color : 'zz').localeCompare(b.color ? b.color : 'zz');
+            }
+            if(sortType === 'highest') return b.totalNum - a.totalNum;
+            if(sortType === 'low_high') return a.totalNum - b.totalNum;
+            if(sortType === 'modify_new') return b.timestamp - a.timestamp;
+            if(sortType === 'modify_old') return a.timestamp - b.timestamp;
+            if(sortType === 'az') {
+                let nameA = a.item.trim().toLowerCase();
+                let nameB = b.item.trim().toLowerCase();
+                if(nameA !== '' && nameB === '') return -1;
+                if(nameA === '' && nameB !== '') return 1;
+                return nameA.localeCompare(nameB);
+            }
+            if(sortType === 'summed') return (b.totalNum > 0 ? 1 : 0) - (a.totalNum > 0 ? 1 : 0);
+            if(sortType === 'unsummed') return (b.unsummed ? 1 : 0) - (a.unsummed ? 1 : 0);
+
+            return 0;
+        });
+
+        document.getElementById('calcBody').innerHTML = '';
+        rowCount = 0;
+        dataRows.forEach(r => window.addRow(r));
+        let currentRows = document.getElementById('calcBody').children.length;
+        while(currentRows < 200) { window.addRow(); currentRows++; } 
+        
+        fullRecalculate();
+    }
+
+    window.toggleItems = function() {
+        isItemVisible = !isItemVisible;
+        const container = document.getElementById('tableContainer');
+        const btn = document.getElementById('toggleItemBtn');
+        if (isItemVisible) { container.classList.add('show-item'); btn.innerText = "Hide Item"; btn.style.backgroundColor = "#d84315"; } 
+        else { container.classList.remove('show-item'); btn.innerText = "Show Item"; btn.style.backgroundColor = "#ef6c00"; }
+    }
+
+    window.calculateRow = function(elem, forceCalculate = false) {
+        let tr = elem.closest('tr');
+        tr.setAttribute('data-timestamp', Date.now()); 
+        
+        if(!forceCalculate && tr.getAttribute('data-unsummed') === 'true') {
+            window.quickDraftSaveDebounced();
+            return; 
+        }
+
+        let unit = parseFloat(tr.querySelector('.unit-input').value) || 0;
+        let price = parseFloat(tr.querySelector('.price-input').value) || 0;
+        let totalInput = tr.querySelector('.total-input');
+        let newTotal = unit * price;
+
+        if (newTotal > 0) {
+            let rawFormatted = parseFloat(newTotal.toFixed(2));
+            totalInput.value = formatMoney(rawFormatted);
+            totalInput.setAttribute('data-raw', rawFormatted);
+        } else {
+            totalInput.value = '';
+            totalInput.setAttribute('data-raw', '');
+        }
+        recalcTotalFromDOM();
+        window.quickDraftSaveDebounced();
+    }
+
+    function fullRecalculate() { document.querySelectorAll('.unit-input').forEach(el => window.calculateRow(el)); reassignSerialNumbers(); }
+
+    function recalcTotalFromDOM() {
+        let totalSum = 0;
+        document.querySelectorAll('.total-input').forEach(input => {
+            let val = parseFloat(input.getAttribute('data-raw')) || 0;
+            totalSum += val;
+        });
+        currentRawTotal = totalSum;
+        window.updateTotalsDisplay();
+    }
+
+    window.updateTotalsDisplay = function() {
+        let paid = parseFloat(document.getElementById('paidAmount').value) || 0;
+        let balance = parseFloat((currentRawTotal - paid).toFixed(2));
+
+        document.getElementById('topTotal').innerText = formatMoney(currentRawTotal);
+        document.getElementById('bottomTotal').innerText = formatMoney(currentRawTotal);
+        document.getElementById('balanceAmount').innerText = formatMoney(balance);
+    }
+
+    function extractCurrentData() {
+        let rows = [];
+        let hasData = false;
+        document.querySelectorAll('#calcBody tr').forEach(tr => {
+            let item = tr.querySelector('.item-input').value;
+            let unit = tr.querySelector('.unit-input').value;
+            let price = tr.querySelector('.price-input').value;
+            let total = tr.querySelector('.total-input').getAttribute('data-raw');
+            let color = tr.getAttribute('data-bg-color') || '';
+            let checked = tr.querySelector('.row-cb').checked;
+            let unsummed = tr.getAttribute('data-unsummed') === 'true';
+            let pinned = tr.getAttribute('data-pinned') === 'true';
+            let timestamp = parseFloat(tr.getAttribute('data-timestamp')) || 0;
+            
+            if(unit || price || item || color || checked || unsummed || pinned) {
+                hasData = true;
+                rows.push({ item, unit, price, total, color, checked, unsummed, pinned, timestamp });
+            }
+        });
+        
+        if(currentRawTotal === 0 && !hasData) return null;
+
+        let existingBill = (JSON.parse(localStorage.getItem('bg_bills_v18')) || []).find(b => b.id === activeBillId);
+        let tags = existingBill ? (existingBill.tags || []) : [];
+        let isPinned = existingBill ? (existingBill.isPinned || false) : false;
+        let cardColor = existingBill ? (existingBill.cardColor || '') : '';
+        let pinnedAt = existingBill ? (existingBill.pinnedAt || 0) : 0; // retain pin time
+
+        const now = new Date();
+        let finalModifyTime = Date.now();
+        let finalDateDisplay = now.toLocaleString('en-IN');
+        let finalIsoDate = now.toISOString().split('T')[0];
+
+        if (existingBill) {
+            finalDateDisplay = existingBill.dateDisplay; 
+            finalIsoDate = existingBill.isoDate;
+            
+            let existingTotal = parseFloat(existingBill.total) || 0;
+            let currentTotalCalc = parseFloat(currentRawTotal.toFixed(2));
+            
+            if (existingTotal === currentTotalCalc) {
+                finalModifyTime = existingBill.modifyTime; 
+            }
+        }
+
+        return {
+            id: activeBillId,
+            modifyTime: finalModifyTime,
+            dateDisplay: finalDateDisplay,
+            isoDate: finalIsoDate,
+            isPinned: isPinned,
+            pinnedAt: pinnedAt,
+            cardColor: cardColor,
+            customerName: document.getElementById('customerName').value || 'Unknown',
+            total: currentRawTotal.toFixed(2),
+            paid: (parseFloat(document.getElementById('paidAmount').value) || 0).toFixed(2),
+            balance: (currentRawTotal - (parseFloat(document.getElementById('paidAmount').value) || 0)).toFixed(2),
+            rows: rows,
+            tags: tags
+        };
+    }
+
+    window.quickDraftSaveDebounced = function() {
+        clearTimeout(saveTimeout);
+        saveTimeout = setTimeout(() => {
+            const data = extractCurrentData();
+            if(data) localStorage.setItem('bg_draft_v18', JSON.stringify(data));
+        }, 800); 
+    }
+
+    function silentAutoSaveToHistory() {
+        const data = extractCurrentData();
+        if (data && parseFloat(data.total) > 0) {
+            let bills = JSON.parse(localStorage.getItem('bg_bills_v18')) || [];
+            const index = bills.findIndex(b => b.id === data.id);
+            if(index !== -1) bills[index] = data; 
+            else bills.push(data); 
+            localStorage.setItem('bg_bills_v18', JSON.stringify(bills));
+        }
+    }
+
+    window.explicitSave = function() {
+        silentAutoSaveToHistory();
+        alert(`Bill No: ${activeBillId} Saved & Synced!`);
+    }
+
+    window.startNew = function() { silentAutoSaveToHistory(); activeBillId = generateUniqueId(); window.clearData(); }
+
+    window.clearData = function() {
+        document.getElementById('customerName').value = '';
+        document.getElementById('paidAmount').value = '';
+        document.getElementById('selectAllCb').checked = false;
+        document.getElementById('rowSortFilter').value = 'default';
+        document.getElementById('mainColorPriority').value = '';
+        localStorage.removeItem('bg_draft_v18');
+        window.resetZoom();
+        initEmptyRows();
+        currentRawTotal = 0;
+        window.updateTotalsDisplay();
+    }
+
+    window.cancelEdit = function() { activeBillId = generateUniqueId(); window.clearData(); }
+
+    function loadDraft(draft) {
+        if(!draft.id || draft.id.toString().length !== 6) activeBillId = generateUniqueId();
+        else activeBillId = draft.id;
+        
+        document.getElementById('customerName').value = draft.customerName || '';
+        document.getElementById('paidAmount').value = draft.paid > 0 ? draft.paid : '';
+        document.getElementById('calcBody').innerHTML = '';
+        rowCount = 0;
+        
+        if (draft.rows && draft.rows.length > 0) draft.rows.forEach(r => window.addRow(r));
+        
+        let currentRows = document.getElementById('calcBody').children.length;
+        while(currentRows < 200) { window.addRow(); currentRows++; } 
+        
+        window.resetZoom();
+        fullRecalculate();
+    }
+
+    // ==========================================
+    // HISTORY & TAGS LOGIC
+    // ==========================================
+    function getTagsData() { return JSON.parse(localStorage.getItem('bg_tags_v18')) || []; }
+    function saveTagsData(tags) { localStorage.setItem('bg_tags_v18', JSON.stringify(tags)); }
+
+    function getTagCounts(bills) {
+        let counts = {};
+        bills.forEach(b => { if(b.tags) b.tags.forEach(t => counts[t] = (counts[t] || 0) + 1); });
+        return counts;
+    }
+
+    window.openHistory = function() {
+        document.getElementById('historyModal').style.display = 'flex';
+        window.updateMultiTagFilterBtnLabel();
+        window.renderHistory();
+    }
+
+    window.closeHistory = function() {
+        document.getElementById('historyModal').style.display = 'none';
+        isTrashView = false;
+        document.getElementById('trashToggleBtn').classList.remove('trash-active');
+        document.getElementById('trashToggleBtn').innerText = "🗑️ Recycle Bin";
+        document.getElementById('sortFilter').value = 'modify_new';
+        document.getElementById('selectAllHistoryCb').checked = false;
+    }
+
+    window.toggleTrashView = function() {
+        isTrashView = !isTrashView;
+        const btn = document.getElementById('trashToggleBtn');
+        const sortFilter = document.getElementById('sortFilter');
+        if(isTrashView) {
+            btn.classList.add('trash-active');
+            btn.innerText = "📁 Active Bills";
+            sortFilter.value = 'recent_delete'; 
+        } else {
+            btn.classList.remove('trash-active');
+            btn.innerText = "🗑️ Recycle Bin";
+            sortFilter.value = 'modify_new';
+        }
+        document.getElementById('selectAllHistoryCb').checked = false;
+        window.renderHistory();
+    }
+
+    window.toggleAllHistory = function(elem) {
+        let isChecked = elem.checked;
+        document.querySelectorAll('.bill-checkbox').forEach(cb => { cb.checked = isChecked; });
+        window.toggleBulkActionBtn();
+    }
+
+    window.updateMultiTagFilterBtnLabel = function() {
+        const btn = document.getElementById('btnMultiTagFilter');
+        if(activeTagFilters.length === 0) {
+            btn.innerText = "🏷️ Filter Tags (All)";
+            btn.style.background = "#e8eaf6";
+            btn.style.color = "#1a237e";
+        } else {
+            btn.innerText = `🏷️ Filter Tags (${activeTagFilters.length})`;
+            btn.style.background = "#3f51b5";
+            btn.style.color = "#fff";
+        }
+    }
+
+    window.openMultiTagFilterModal = function() {
+        document.getElementById('multiTagFilterModal').style.display = 'flex';
+        document.getElementById('filterTagSearchInput').value = '';
+        tempFilterTags = new Set(activeTagFilters); 
+        window.renderMultiTagFilterList();
+    }
+
+    window.closeMultiTagFilterModal = function() {
+        document.getElementById('multiTagFilterModal').style.display = 'none';
+    }
+
+    window.toggleTempFilterTag = function(cb) {
+        let val = parseInt(cb.value);
+        if(cb.checked) tempFilterTags.add(val);
+        else tempFilterTags.delete(val);
+    }
+
+    window.renderMultiTagFilterList = function() {
+        const list = document.getElementById('multiTagFilterList');
+        let tags = getTagsData();
+        let bills = JSON.parse(localStorage.getItem('bg_bills_v18')) || [];
+        let counts = getTagCounts(bills);
+        const searchQuery = document.getElementById('filterTagSearchInput').value.trim().toLowerCase();
+        
+        const highlightFn = window.createAdvancedHighlight(searchQuery);
+
+        tags.sort((a,b) => (counts[b.id]||0) - (counts[a.id]||0)); 
+        
+        let filteredTags = tags;
+        if(searchQuery) {
+            let terms = searchQuery.split(/\s+/).filter(Boolean);
+            filteredTags = tags.filter(t => terms.every(term => t.name.toLowerCase().includes(term)));
+        }
+
+        list.innerHTML = '';
+
+        if(filteredTags.length === 0) {
+            list.innerHTML = `<p style="text-align:center; padding: 20px; font-weight:bold;">No tags found.</p>`;
+            return;
+        }
+
+        filteredTags.forEach(t => {
+            let isChecked = tempFilterTags.has(t.id) ? 'checked' : '';
+            list.innerHTML += `
+                <label class="tag-assign-item">
+                    <input type="checkbox" class="filter-tag-cb" onchange="window.toggleTempFilterTag(this)" value="${t.id}" ${isChecked}>
+                    ${highlightFn(t.name)} <small style="color:#777; margin-left:auto;">(${counts[t.id]||0})</small>
+                </label>
+            `;
+        });
+    }
+
+    window.clearTempMultiTagFilters = function() {
+        tempFilterTags.clear();
+        window.renderMultiTagFilterList();
+    }
+
+    window.applyMultiTagFilters = function() {
+        activeTagFilters = Array.from(tempFilterTags); 
+        window.updateMultiTagFilterBtnLabel();
+        window.closeMultiTagFilterModal();
+        window.renderHistory();
+    }
+
+    window.resetDateFilter = function() {
+        document.getElementById('dateFrom').value = '';
+        document.getElementById('dateTo').value = '';
+        window.renderHistory();
+    }
+
+    window.renderHistory = function() {
+        const list = document.getElementById('historyList');
+        const dbName = isTrashView ? 'bg_trash_v18' : 'bg_bills_v18';
+        let bills = JSON.parse(localStorage.getItem(dbName)) || [];
+        const allTags = getTagsData();
+        
+        const query = document.getElementById('searchInput').value.trim().toLowerCase();
+        const sortType = document.getElementById('sortFilter').value;
+        const colorPriority = document.getElementById('cardColorFilter').value;
+        const dateFrom = document.getElementById('dateFrom').value;
+        const dateTo = document.getElementById('dateTo').value;
+
+        if(dateFrom || dateTo) {
+            bills = bills.filter(b => {
+                let bDate = b.isoDate || new Date(b.modifyTime).toISOString().split('T')[0];
+                if(dateFrom && bDate < dateFrom) return false;
+                if(dateTo && bDate > dateTo) return false;
+                return true;
+            });
+        }
+
+        if(activeTagFilters.length > 0) {
+            bills = bills.filter(b => b.tags && activeTagFilters.some(tid => b.tags.includes(tid)));
+        }
+
+        let filteredBills = [];
+        let searchTerms = query.split(/\s+/);
+
+        bills.forEach(bill => {
+            let itemsStr = bill.rows ? bill.rows.map(r => `${r.item || ''} ${r.price || ''} ${r.total || ''}`).join(' ') : '';
+            let tagsStr = bill.tags ? bill.tags.map(tid => {
+                let tObj = allTags.find(x => x.id === tid);
+                return tObj ? tObj.name : '';
+            }).join(' ') : '';
+            
+            let searchableText = `${bill.customerName} ${bill.id} ${bill.dateDisplay} ${bill.total} ${bill.paid} ${bill.balance} ${itemsStr} ${tagsStr}`.toLowerCase();
+            let isMatch = searchTerms.every(term => searchableText.includes(term));
+            if(query === '' || isMatch) filteredBills.push(bill);
+        });
+
+        // 1. Normal Sort
+        if (sortType === 'modify_new') filteredBills.sort((a, b) => b.modifyTime - a.modifyTime);
+        else if (sortType === 'recent_delete') filteredBills.sort((a, b) => (b.deletedAt || 0) - (a.deletedAt || 0));
+        else if (sortType === 'amount_desc') filteredBills.sort((a, b) => parseFloat(b.total || 0) - parseFloat(a.total || 0));
+        else if (sortType === 'default') filteredBills.sort((a, b) => a.id - b.id);
+        else if (sortType === 'az') filteredBills.sort((a, b) => a.customerName.localeCompare(b.customerName));
+        
+        // 2. Color Priority Sort
+        if (colorPriority) {
+            filteredBills.sort((a, b) => {
+                let aColor = (a.cardColor === colorPriority) ? 1 : 0;
+                let bColor = (b.cardColor === colorPriority) ? 1 : 0;
+                return bColor - aColor; 
+            });
+        }
+
+        // 3. Absolute Pin Sort (Pinned always top, Newest Pin First)
+        filteredBills.sort((a, b) => {
+            let aPin = a.isPinned ? 1 : 0;
+            let bPin = b.isPinned ? 1 : 0;
+            if (aPin !== bPin) return bPin - aPin;
+            if (a.isPinned && b.isPinned) {
+                return (b.pinnedAt || 0) - (a.pinnedAt || 0);
+            }
+            return 0;
+        });
+        
+        let dashSum = filteredBills.reduce((sum, b) => sum + parseFloat(b.total || 0), 0);
+        document.getElementById('dashCount').innerText = filteredBills.length;
+        document.getElementById('dashTotal').innerText = formatMoney(dashSum);
+
+        document.getElementById('historyTitle').innerText = isTrashView ? `Recycle Bin` : `History`;
+        list.innerHTML = '';
+        
+        // Don't uncheck selectAll if rendering is due to checking a box
+        // document.getElementById('selectAllHistoryCb').checked = false; // Removed to maintain bulk action state safely
+        window.toggleBulkActionBtn();
+
+        if(filteredBills.length === 0) {
+            list.innerHTML = `<p style="text-align:center; padding: 20px; font-size:14px; color:#666; font-weight:bold;">No Bills Found</p>`;
+            return;
+        }
+
+        filteredBills.forEach((bill, index) => {
+            const highlight = (text) => {
+                if(!query) return text;
+                let result = String(text);
+                searchTerms.forEach(term => {
+                    if(term) {
+                        const regex = new RegExp(`(${term})`, 'gi');
+                        result = result.replace(regex, '<mark>$1</mark>');
+                    }
+                });
+                return result;
+            };
+
+            let tagBadgesHtml = '';
+            if(bill.tags && bill.tags.length > 0) {
+                bill.tags.forEach(tid => {
+                    let tObj = allTags.find(x => x.id === tid);
+                    if(tObj) tagBadgesHtml += `<span class="tag-badge">${highlight(tObj.name)}</span>`;
+                });
+            }
+
+            const div = document.createElement('div');
+            let balanceDue = parseFloat(bill.balance) > 0;
+            div.className = `history-card ${balanceDue ? 'due-bill' : ''}`;
+            
+            // Apply History Card Colors & Dark Mode Text Check
+            let cardBg = bill.cardColor || '#fff';
+            if(balanceDue && !bill.cardColor) cardBg = '#ffebee'; 
+            div.style.backgroundColor = cardBg;
+            
+            // Check if card color is dark to apply white text
+            const darkColors = ['#b71c1c', '#1b5e20', '#0d47a1', '#e65100', '#4a148c'];
+            if(darkColors.includes(cardBg)) {
+                div.classList.add('dark-card');
+            }
+
+            if(bill.isPinned) {
+                div.style.borderLeftColor = '#ffb300';
+                div.style.borderLeftWidth = '6px';
+            }
+
+            let pinBtnText = bill.isPinned ? '📌 Unpin' : '📌 Pin';
+            let pinBtnClass = bill.isPinned ? 'btn-pin-active' : 'btn-pin';
+
+            let actionButtons = '';
+            let colorPickerHtml = '';
+            
+            if(!isTrashView) {
+                actionButtons = `
+                    <button class="btn-edit" onclick="window.editBill(${bill.id})">Edit</button>
+                    <button class="btn-view" onclick="window.previewBill(${bill.id})">View</button>
+                    <button class="btn-pdf" onclick="window.downloadPDF(${bill.id})">PDF</button>
+                    <button class="btn-wa" onclick="window.shareWADocument(${bill.id})">WA</button>
+                    <button class="btn-tag" onclick="window.openAssignTag(false, ${bill.id})">🏷️</button>
+                    <button class="${pinBtnClass}" onclick="window.toggleBillPin(${bill.id})">${pinBtnText}</button>
+                    <button class="btn-del" onclick="window.moveToTrash(${bill.id})">🗑️</button>
+                `;
+                colorPickerHtml = `
+                    <div class="card-color-picker">
+                        <span style="font-size:10px; font-weight:bold; color:#555;">Color:</span>
+                        <button style="background:#ffebee" onclick="window.setBillColor(${bill.id}, '#ffebee')"></button>
+                        <button style="background:#e8f5e9" onclick="window.setBillColor(${bill.id}, '#e8f5e9')"></button>
+                        <button style="background:#e3f2fd" onclick="window.setBillColor(${bill.id}, '#e3f2fd')"></button>
+                        <button style="background:#fff3e0" onclick="window.setBillColor(${bill.id}, '#fff3e0')"></button>
+                        <button style="background:#f3e5f5" onclick="window.setBillColor(${bill.id}, '#f3e5f5')"></button>
+                        <button style="background:#eceff1" onclick="window.setBillColor(${bill.id}, '')">❌</button>
+                    </div>
+                `;
+            } else {
+                actionButtons = `
+                    <button class="btn-restore" onclick="window.restoreBill(${bill.id})">Restore</button>
+                    <button class="btn-del" onclick="window.permDeleteBill(${bill.id})">Perm Del</button>
+                `;
+            }
+
+            // Check if this row is currently selected in bulk logic
+            const checkboxes = document.querySelectorAll('.bill-checkbox:checked');
+            const isChecked = Array.from(checkboxes).map(cb => cb.value).includes(bill.id.toString());
+
+            div.innerHTML = `
+                <div class="history-card-header">
+                    <h4>
+                        <span class="sl-badge">#${index + 1}</span>
+                        <input type="checkbox" class="bill-checkbox" value="${bill.id}" onchange="window.toggleBulkActionBtn()" ${isChecked ? 'checked' : ''}>
+                        ${highlight(bill.customerName)} 
+                        <span style="font-size:11px; color:#1565c0; background:rgba(255,255,255,0.7); padding:1px 4px; border-radius:3px; border:1px solid #90caf9;">#${highlight(bill.id)}</span>
+                    </h4>
+                    <strong style="color:#d32f2f; font-size:14px;">₹${highlight(formatMoney(bill.total))}</strong>
+                </div>
+                ${tagBadgesHtml ? `<div class="tag-badge-container">${tagBadgesHtml}</div>` : ''}
+                <p>${highlight(bill.dateDisplay)} | P: ₹${highlight(formatMoney(bill.paid))} | B: ₹${highlight(formatMoney(bill.balance))}</p>
+                <div class="card-actions">${actionButtons}</div>
+                ${colorPickerHtml}
+            `;
+            list.appendChild(div);
+        });
+    }
+
+    // HELPER: Toggle History Pin (Individual)
+    window.toggleBillPin = function(id) {
+        let bills = JSON.parse(localStorage.getItem('bg_bills_v18')) || [];
+        let index = bills.findIndex(b => b.id === id);
+        if(index !== -1) {
+            bills[index].isPinned = !bills[index].isPinned;
+            if(bills[index].isPinned) bills[index].pinnedAt = Date.now();
+            else delete bills[index].pinnedAt;
+            localStorage.setItem('bg_bills_v18', JSON.stringify(bills));
+            window.renderHistory();
+        }
+    }
+
+    // HELPER: Set History Bill Color (Individual)
+    window.setBillColor = function(id, colorHex) {
+        let bills = JSON.parse(localStorage.getItem('bg_bills_v18')) || [];
+        let index = bills.findIndex(b => b.id === id);
+        if(index !== -1) {
+            bills[index].cardColor = colorHex;
+            localStorage.setItem('bg_bills_v18', JSON.stringify(bills));
+            window.renderHistory();
+        }
+    }
+
+    // NEW FEATURE: BULK PIN / UNPIN
+    window.bulkPin = function(isPin) {
+        const checkboxes = document.querySelectorAll('.bill-checkbox:checked');
+        if(checkboxes.length === 0) return;
+        const ids = Array.from(checkboxes).map(cb => parseInt(cb.value));
+        
+        let bills = JSON.parse(localStorage.getItem('bg_bills_v18')) || [];
+        let timeCount = Date.now();
+        
+        bills.forEach(b => {
+            if(ids.includes(b.id)) {
+                b.isPinned = isPin;
+                if (isPin) b.pinnedAt = timeCount++; // Sequential timestamp ensures newest is top
+                else delete b.pinnedAt;
+            }
+        });
+        
+        localStorage.setItem('bg_bills_v18', JSON.stringify(bills));
+        document.getElementById('selectAllHistoryCb').checked = false;
+        window.renderHistory();
+    }
+
+    // NEW FEATURE: BULK COLOR (Dark or Clear)
+    window.bulkColor = function(colorHex) {
+        const checkboxes = document.querySelectorAll('.bill-checkbox:checked');
+        if(checkboxes.length === 0) return;
+        const ids = Array.from(checkboxes).map(cb => parseInt(cb.value));
+        
+        let bills = JSON.parse(localStorage.getItem('bg_bills_v18')) || [];
+        bills.forEach(b => {
+            if(ids.includes(b.id)) {
+                b.cardColor = colorHex;
+            }
+        });
+        
+        localStorage.setItem('bg_bills_v18', JSON.stringify(bills));
+        document.getElementById('selectAllHistoryCb').checked = false;
+        window.renderHistory();
+    }
+
+    window.openTagManager = function() { document.getElementById('tagManagerModal').style.display = 'flex'; window.renderTagManager(); }
+    window.closeTagManager = function() { document.getElementById('tagManagerModal').style.display = 'none'; window.renderHistory(); }
+
+    window.renderTagManager = function() {
+        const list = document.getElementById('tagListContainer');
+        let tags = getTagsData();
+        let bills = JSON.parse(localStorage.getItem('bg_bills_v18')) || [];
+        let counts = getTagCounts(bills);
+        const sortType = document.getElementById('tagSortSelect').value;
+        const searchQuery = document.getElementById('tagSearchInput').value.trim().toLowerCase();
+        
+        const highlightFn = window.createAdvancedHighlight(searchQuery);
+
+        document.getElementById('tagManagerTitle').innerText = `Manage Tags (${tags.length})`;
+
+        if(sortType === 'az') tags.sort((a,b) => a.name.localeCompare(b.name));
+        else if(sortType === 'count') tags.sort((a,b) => (counts[b.id]||0) - (counts[a.id]||0));
+        else if(sortType === 'new') tags.sort((a,b) => b.createdAt - a.createdAt);
+
+        let filteredTags = tags;
+        if(searchQuery) {
+            let terms = searchQuery.split(/\s+/).filter(Boolean);
+            filteredTags = tags.filter(t => terms.every(term => t.name.toLowerCase().includes(term)));
+        }
+
+        list.innerHTML = '';
+        if(filteredTags.length === 0) { list.innerHTML = `<p style="text-align:center; color:#777; font-weight:bold;">No tags found.</p>`; return; }
+
+        filteredTags.forEach((t, index) => {
+            let billCount = counts[t.id] || 0;
+            list.innerHTML += `
+                <div class="tag-list-item">
+                    <div style="display:flex; align-items:center; gap:8px;">
+                        <input type="checkbox" class="tag-bulk-cb" value="${t.id}" style="transform:scale(1.4); margin:0;" onchange="window.toggleTagBulkBtn()">
+                        <span>${index + 1}. ${highlightFn(t.name)} <small>${billCount} bills</small></span>
+                    </div>
+                    <button style="background:#00acc1; border:none; padding:5px 12px; color:#fff; border-radius:3px; font-weight:bold; cursor:pointer; box-shadow: 0 1px 2px rgba(0,0,0,0.2);" onclick="window.editTag(${t.id}, '${t.name}')">Edit</button>
+                </div>
+            `;
+        });
+        window.toggleTagBulkBtn();
+    }
+
+    window.createNewTag = function() {
+        let input = document.getElementById('newTagName');
+        let val = input.value.trim();
+        if(!val) return;
+        let tags = getTagsData();
+        let newId = Date.now();
+        tags.push({ id: newId, name: val, createdAt: newId });
+        saveTagsData(tags);
+        input.value = '';
+        window.renderTagManager();
+    }
+
+    window.editTag = function(id, oldName) {
+        let newName = prompt("Edit Tag Name:", oldName);
+        if(newName && newName.trim() !== "") {
+            let tags = getTagsData();
+            let tag = tags.find(t => t.id === id);
+            if(tag) { tag.name = newName.trim(); saveTagsData(tags); window.renderTagManager(); }
+        }
+    }
+
+    window.toggleTagBulkBtn = function() {
+        let checked = document.querySelectorAll('.tag-bulk-cb:checked').length;
+        let btn = document.getElementById('bulkTagDelBtn');
+        btn.style.display = checked > 0 ? 'block' : 'none';
+        btn.innerText = `Delete (${checked})`;
+    }
+
+    window.deleteSelectedTags = function() {
+        let checked = document.querySelectorAll('.tag-bulk-cb:checked');
+        if(checked.length === 0) return;
+        if(confirm(`Are you sure you want to delete ${checked.length} tags? They will be removed from all bills.`)) {
+            let idsToDelete = Array.from(checked).map(cb => parseInt(cb.value));
+            let tags = getTagsData();
+            tags = tags.filter(t => !idsToDelete.includes(t.id));
+            saveTagsData(tags);
+
+            let bills = JSON.parse(localStorage.getItem('bg_bills_v18')) || [];
+            bills.forEach(b => { if(b.tags) b.tags = b.tags.filter(tid => !idsToDelete.includes(tid)); });
+            localStorage.setItem('bg_bills_v18', JSON.stringify(bills));
+            window.renderTagManager();
+        }
+    }
+
+    window.openAssignTag = function(isBulk = false, billId = null) {
+        isBulkTagMode = isBulk;
+        let bills = JSON.parse(localStorage.getItem('bg_bills_v18')) || [];
+        bulkTargetIds = [];
+        targetBillForTag = null;
+        tempAssignTags.clear(); 
+
+        if(!isBulk && billId) {
+            targetBillForTag = billId;
+            document.getElementById('assignTagTitle').innerText = "Assign Tags to Bill";
+            let bill = bills.find(b => b.id === targetBillForTag);
+            if(bill && bill.tags) bill.tags.forEach(t => tempAssignTags.add(t)); 
+        } else if (isBulk) {
+            const checked = document.querySelectorAll('.bill-checkbox:checked');
+            bulkTargetIds = Array.from(checked).map(cb => parseInt(cb.value));
+            document.getElementById('assignTagTitle').innerText = `Bulk Assign Tags (${bulkTargetIds.length} Bills)`;
+        }
+
+        document.getElementById('assignTagModal').style.display = 'flex';
+        document.getElementById('assignTagSearchInput').value = '';
+        
+        const footer = document.getElementById('assignTagFooter');
+        if(isBulkTagMode) {
+            footer.innerHTML = `
+                <button class="btn-clear-sel" onclick="window.clearTempAssignTags()">Unselect All</button>
+                <button class="btn-remove-tags" onclick="window.saveAssignedTags('remove')">Remove</button>
+                <button class="btn-save-tags" onclick="window.saveAssignedTags('add')">Add Tags</button>
+            `;
+        } else {
+            footer.innerHTML = `
+                <button class="btn-clear-sel" onclick="window.clearTempAssignTags()" style="flex: 0.5;">Clear</button>
+                <button class="btn-save-tags" onclick="window.saveAssignedTags('replace')">Save Tags</button>
+            `;
+        }
+        window.renderAssignTagList();
+    }
+
+    window.openBulkAssignTag = function() { window.openAssignTag(true); }
+    window.closeAssignTag = function() { document.getElementById('assignTagModal').style.display = 'none'; targetBillForTag = null; bulkTargetIds = []; tempAssignTags.clear(); }
+
+    window.toggleTempAssignTag = function(cb) {
+        let val = parseInt(cb.value);
+        if(cb.checked) tempAssignTags.add(val);
+        else tempAssignTags.delete(val);
+    }
+
+    window.renderAssignTagList = function() {
+        const list = document.getElementById('assignTagList');
+        let tags = getTagsData();
+        let bills = JSON.parse(localStorage.getItem('bg_bills_v18')) || [];
+        let counts = getTagCounts(bills);
+        const searchQuery = document.getElementById('assignTagSearchInput').value.trim().toLowerCase();
+        
+        const highlightFn = window.createAdvancedHighlight(searchQuery);
+
+        tags.sort((a,b) => (counts[b.id]||0) - (counts[a.id]||0)); 
+        
+        let filteredTags = tags;
+        if(searchQuery) {
+            let terms = searchQuery.split(/\s+/).filter(Boolean);
+            filteredTags = tags.filter(t => terms.every(term => t.name.toLowerCase().includes(term)));
+        }
+
+        list.innerHTML = '';
+
+        if(filteredTags.length === 0) {
+            list.innerHTML = `<p style="text-align:center; padding: 20px; font-weight:bold;">No tags found.</p>`;
+            return;
+        }
+
+        filteredTags.forEach(t => {
+            let isChecked = tempAssignTags.has(t.id) ? 'checked' : '';
+            list.innerHTML += `
+                <label class="tag-assign-item">
+                    <input type="checkbox" class="assign-tag-cb" onchange="window.toggleTempAssignTag(this)" value="${t.id}" ${isChecked}>
+                    ${highlightFn(t.name)} <small style="color:#777; margin-left:auto;">(${counts[t.id]||0})</small>
+                </label>
+            `;
+        });
+    }
+
+    window.clearTempAssignTags = function() { tempAssignTags.clear(); window.renderAssignTagList(); }
+
+    window.saveAssignedTags = function(actionType) {
+        let selectedIds = Array.from(tempAssignTags);
+        
+        if (selectedIds.length === 0 && actionType !== 'replace') {
+            alert("Please select at least one tag.");
+            return;
+        }
+
+        let bills = JSON.parse(localStorage.getItem('bg_bills_v18')) || [];
+        
+        if (actionType === 'replace' && targetBillForTag) {
+            let index = bills.findIndex(b => b.id === targetBillForTag);
+            if(index !== -1) {
+                bills[index].tags = selectedIds;
+                if(activeBillId === targetBillForTag) window.quickDraftSaveDebounced();
+            }
+        } else if (bulkTargetIds.length > 0) {
+            bills.forEach(b => {
+                if(bulkTargetIds.includes(b.id)) {
+                    if (actionType === 'add') b.tags = [...new Set([...(b.tags||[]), ...selectedIds])];
+                    else if (actionType === 'remove') b.tags = (b.tags||[]).filter(t => !selectedIds.includes(t));
+                }
+            });
+        }
+        
+        localStorage.setItem('bg_bills_v18', JSON.stringify(bills));
+        window.closeAssignTag();
+        window.renderHistory();
+    }
+
+    window.editBill = function(id) {
+        let bills = JSON.parse(localStorage.getItem('bg_bills_v18')) || [];
+        const bill = bills.find(b => b.id === id);
+        if(bill) { loadDraft(bill); window.closeHistory(); }
+    }
+
+    window.moveToTrash = function(id) {
+        let bills = JSON.parse(localStorage.getItem('bg_bills_v18')) || [];
+        let trash = JSON.parse(localStorage.getItem('bg_trash_v18')) || [];
+        const index = bills.findIndex(b => b.id === id);
+        if(index !== -1) {
+            let bill = bills[index];
+            bill.deletedAt = Date.now(); 
+            trash.push(bill);
+            bills.splice(index, 1);
+            localStorage.setItem('bg_bills_v18', JSON.stringify(bills));
+            localStorage.setItem('bg_trash_v18', JSON.stringify(trash));
+            window.renderHistory();
+        }
+    }
+
+    window.restoreBill = function(id) {
+        let bills = JSON.parse(localStorage.getItem('bg_bills_v18')) || [];
+        let trash = JSON.parse(localStorage.getItem('bg_trash_v18')) || [];
+        const index = trash.findIndex(b => b.id === id);
+        if(index !== -1) {
+            bills.push(trash[index]);
+            trash.splice(index, 1);
+            localStorage.setItem('bg_bills_v18', JSON.stringify(bills));
+            localStorage.setItem('bg_trash_v18', JSON.stringify(trash));
+            window.renderHistory();
+        }
+    }
+
+    window.permDeleteBill = function(id) {
+        if(confirm("Permanently delete this bill? This cannot be undone.")) {
+            let trash = JSON.parse(localStorage.getItem('bg_trash_v18')) || [];
+            trash = trash.filter(b => b.id !== id);
+            localStorage.setItem('bg_trash_v18', JSON.stringify(trash));
+            window.renderHistory();
+        }
+    }
+
+    // UPDATE: TOGGLE BULK ACTION BAR
+    window.toggleBulkActionBtn = function() {
+        const checkboxes = document.querySelectorAll('.bill-checkbox:checked');
+        const btnDel = document.getElementById('bulkActionBtn');
+        const btnTag = document.getElementById('bulkTagBtn');
+        const bulkPanel = document.getElementById('historyBulkActions');
+        const bulkCount = document.getElementById('bulkCount');
+        
+        if(checkboxes.length > 0) {
+            btnDel.style.display = 'block';
+            btnDel.innerText = isTrashView ? `Perm Del (${checkboxes.length})` : `Trash (${checkboxes.length})`;
+            
+            if(!isTrashView) { 
+                btnTag.style.display = 'block'; 
+                btnTag.innerText = `Tags (${checkboxes.length})`; 
+                bulkPanel.style.display = 'flex'; // Show new Bulk panel
+                bulkCount.innerText = checkboxes.length;
+            } else { 
+                btnTag.style.display = 'none'; 
+                bulkPanel.style.display = 'none';
+            }
+        } else {
+            btnDel.style.display = 'none';
+            btnTag.style.display = 'none';
+            bulkPanel.style.display = 'none'; // Hide Bulk panel
+        }
+    }
+
+    window.executeBulkAction = function() {
+        const checkboxes = document.querySelectorAll('.bill-checkbox:checked');
+        if(checkboxes.length === 0) return;
+        const ids = Array.from(checkboxes).map(cb => parseInt(cb.value));
+        
+        if(!isTrashView) {
+            if(confirm(`Move ${checkboxes.length} bills to Recycle Bin?`)) {
+                let bills = JSON.parse(localStorage.getItem('bg_bills_v18')) || [];
+                let trash = JSON.parse(localStorage.getItem('bg_trash_v18')) || [];
+                ids.forEach(id => {
+                    const idx = bills.findIndex(b => b.id === id);
+                    if(idx !== -1) { 
+                        let bill = bills[idx];
+                        bill.deletedAt = Date.now();
+                        trash.push(bill); 
+                        bills.splice(idx, 1); 
+                    }
+                });
+                localStorage.setItem('bg_bills_v18', JSON.stringify(bills));
+                localStorage.setItem('bg_trash_v18', JSON.stringify(trash));
+                document.getElementById('selectAllHistoryCb').checked = false;
+            }
+        } else {
+            if(confirm(`Permanently delete ${checkboxes.length} bills?`)) {
+                let trash = JSON.parse(localStorage.getItem('bg_trash_v18')) || [];
+                trash = trash.filter(b => !ids.includes(b.id));
+                localStorage.setItem('bg_trash_v18', JSON.stringify(trash));
+                document.getElementById('selectAllHistoryCb').checked = false;
+            }
+        }
+        window.renderHistory();
+    }
+
+    function prepareInvoice(id) {
+        let bills = JSON.parse(localStorage.getItem('bg_bills_v18')) || [];
+        const bill = bills.find(b => b.id === id);
+        if(!bill) return null;
+
+        document.getElementById('inv-top-name').innerText = bill.customerName || 'Customer';
+        document.getElementById('inv-date').innerText = bill.dateDisplay;
+        document.getElementById('inv-id').innerText = bill.id;
+        
+        let tbody = document.getElementById('inv-body');
+        tbody.innerHTML = '';
+        let sl = 1;
+        bill.rows.forEach(r => {
+            if(r.total > 0) {
+                tbody.innerHTML += `<tr><td>${sl++}</td><td>${r.item||'-'}</td><td>${r.unit}</td><td>₹${formatMoney(r.price)}</td><td>₹${formatMoney(r.total)}</td></tr>`;
+            }
+        });
+
+        document.getElementById('inv-total').innerText = '₹' + formatMoney(bill.total);
+        document.getElementById('inv-paid').innerText = '₹' + formatMoney(bill.paid);
+        document.getElementById('inv-balance').innerText = '₹' + formatMoney(bill.balance);
+        
+        return bill;
+    }
+
+    window.previewBill = function(id) {
+        const bill = prepareInvoice(id);
+        if(!bill) return;
+
+        const template = document.getElementById('invoice-template');
+        template.style.display = 'block';
+        const previewContainer = document.getElementById('previewContainer');
+        previewContainer.innerHTML = '';
+        previewContainer.appendChild(template.cloneNode(true));
+        template.style.display = 'none';
+        
+        document.getElementById('btnPreviewPdf').onclick = () => window.downloadPDF(id);
+        document.getElementById('btnPreviewWa').onclick = () => window.shareWADocument(id);
+        document.getElementById('previewModal').style.display = 'flex';
+    }
+
+    window.closePreview = function() { document.getElementById('previewModal').style.display = 'none'; }
+
+    function getPdfOptions(fileName) {
+        return {
+            margin:       0.1,
+            filename:     fileName,
+            image:        { type: 'jpeg', quality: 0.98 },
+            html2canvas:  { scale: 2, useCORS: true, letterRendering: true },
+            jsPDF:        { unit: 'in', format: 'a4', orientation: 'portrait' },
+            pagebreak:    { mode: ['avoid-all', 'css', 'legacy'] }
+        };
+    }
+
+    window.downloadPDF = function(id) {
+        const bill = prepareInvoice(id);
+        if(bill) {
+            const now = new Date();
+            const formattedDate = now.toLocaleDateString('en-IN').replace(/\//g, '-');
+            const formattedTime = now.toLocaleTimeString('en-IN', { hour: '2-digit', minute: '2-digit', hour12: true }).replace(/[:\s]/g, '');
+            const safeName = (bill.customerName || 'Customer').replace(/\s+/g, '_');
+            
+            let defaultName = `Bill_${id}_${safeName}_${formattedDate}_${formattedTime}.pdf`;
+            let userFileName = prompt("Enter file name to save PDF:", defaultName);
+            if(userFileName === null) return; 
+            if(!userFileName.toLowerCase().endsWith('.pdf')) userFileName += '.pdf';
+
+            const element = document.getElementById('invoice-template');
+            element.style.display = 'block'; 
+            html2pdf().set(getPdfOptions(userFileName)).from(element).save().then(() => { element.style.display = 'none'; });
+        }
+    }
+
+    window.shareWADocument = async function(id) {
+        const bill = prepareInvoice(id);
+        if(!bill) return;
+        
+        let fallbackText = `*Invoice Details*\n\n*Customer:* ${bill.customerName}\n*Bill No:* ${bill.id}\n*Date:* ${bill.dateDisplay}\n\n*Item List:*\n`;
+        let sl = 1;
+        bill.rows.forEach(r => {
+            if(r.total > 0) { fallbackText += `${sl++}. ${r.item || 'Item'} | Qty: ${r.unit} | Rate: ₹${formatMoney(r.price)} | Total: ₹${formatMoney(r.total)}\n`; }
+        });
+        fallbackText += `\n*Total Amount:* ₹${formatMoney(bill.total)}\n*Paid:* ₹${formatMoney(bill.paid)}\n*Balance Due:* ₹${formatMoney(bill.balance)}\n\nThank you!`;
+        
+        if (navigator.canShare) {
+            const element = document.getElementById('invoice-template');
+            element.style.display = 'block';
+            try {
+                const pdfBlob = await html2pdf().set(getPdfOptions(`Bill_${bill.id}.pdf`)).from(element).outputPdf('blob');
+                element.style.display = 'none';
+                const file = new File([pdfBlob], `Bill_${bill.id}.pdf`, { type: 'application/pdf' });
+                if (navigator.canShare({ files: [file] })) {
+                    await navigator.share({ title: 'Invoice', text: fallbackText, files: [file] });
+                    return; 
+                }
+            } catch(e) { element.style.display = 'none'; console.log("Direct file share failed", e); }
+        }
+        const url = `https://api.whatsapp.com/send?text=${encodeURIComponent(fallbackText)}`;
+        window.open(url, '_blank');
+    }
+</script>
+</body>
+</html>
